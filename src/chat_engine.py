@@ -7,9 +7,9 @@ Handles question-answering using retrieved context and LLM.
 # ============================================================================
 # IMPORTS
 # ============================================================================
-from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
 
 # ============================================================================
@@ -164,8 +164,8 @@ Answer:"""
                     "sources": relevant_docs
                 }
         
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - temporary, chat engine is rewritten in Step 2
             return {
-                "answer": f"❌ Error generating answer: {str(e)}",
+                "answer": f"❌ Error generating answer: {e!s}",
                 "sources": []
             }

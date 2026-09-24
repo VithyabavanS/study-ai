@@ -8,10 +8,14 @@ It extracts text and splits it into chunks for RAG processing.
 # ============================================================================
 # IMPORTS
 # ============================================================================
-from langchain_community.document_loaders import PyPDFLoader  # Updated
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-import tempfile
 import os
+import tempfile
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyPDFLoader  # Updated
+
+from exceptions import DocumentProcessingError
+
 # Hint: We need PyPDFLoader and RecursiveCharacterTextSplitter from langchain
 
 
@@ -113,4 +117,5 @@ class DocumentProcessor:
             # If anything goes wrong, clean up and raise error
             if self.temp_file_path and os.path.exists(self.temp_file_path):
                 os.unlink(self.temp_file_path)
-            raise Exception(f"Error processing document: {str(e)}")
+            # raise Exception(f"Error processing document: {e!s}")
+            raise DocumentProcessingError(f"Error processing document: {e}") from e
