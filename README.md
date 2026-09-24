@@ -56,16 +56,16 @@ This ensures answers are grounded in the document, not hallucinated.
 
 ## 🛠️ Technology Stack
 
-| Category | Tools |
-|----------|-------|
-| Frontend | Streamlit |
-| AI Orchestration | LangChain |
-| Vector Database | ChromaDB |
-| Embeddings (Free) | HuggingFace all-MiniLM-L6-v2 |
-| Embeddings (Paid) | OpenAI text-embedding-3-small |
-| LLM | OpenAI gpt-3.5-turbo |
-| PDF Processing | PyPDF |
-| Environment Config | python-dotenv |
+| Category           | Tools                         |
+| ------------------ | ----------------------------- |
+| Frontend           | Streamlit                     |
+| AI Orchestration   | LangChain                     |
+| Vector Database    | ChromaDB                      |
+| Embeddings (Free)  | HuggingFace all-MiniLM-L6-v2  |
+| Embeddings (Paid)  | OpenAI text-embedding-3-small |
+| LLM                | OpenAI gpt-3.5-turbo          |
+| PDF Processing     | PyPDF                         |
+| Environment Config | python-dotenv                 |
 
 ## 📁 Project Structure
 
@@ -83,7 +83,7 @@ src/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/studyai.git
+git clone https://github.com/VithyabavanS/study-ai.git
 cd studyai
 ```
 
@@ -113,13 +113,13 @@ Open your browser and start chatting with your PDFs 🚀
 
 ## 🆓 Free Mode vs 🤖 AI Mode
 
-| Feature | Free Mode | AI Mode |
-|---------|-----------|---------|
-| Cost | 100% Free | Requires OpenAI API |
-| Runs Locally | ✅ | ❌ |
-| Answer Type | Extractive | Generative |
-| Answer Quality | Good | Excellent |
-| Internet Required | ❌ | ✅ |
+| Feature           | Free Mode  | AI Mode             |
+| ----------------- | ---------- | ------------------- |
+| Cost              | 100% Free  | Requires OpenAI API |
+| Runs Locally      | ✅         | ❌                  |
+| Answer Type       | Extractive | Generative          |
+| Answer Quality    | Good       | Excellent           |
+| Internet Required | ❌         | ✅                  |
 
 ## 🎯 Use Cases
 
