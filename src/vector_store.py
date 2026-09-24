@@ -8,10 +8,13 @@ This is the core of the RAG (Retrieval-Augmented Generation) system.
 # ============================================================================
 # IMPORTS
 # ============================================================================
-from langchain_openai import OpenAIEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings  # Updated!
+
 from langchain_community.vectorstores import Chroma
-import os
+from langchain_huggingface import HuggingFaceEmbeddings  # Updated!
+from langchain_openai import OpenAIEmbeddings
+
+from config import EMBEDDING_DEVICE, HF_EMBEDDING_MODEL, OPENAI_EMBEDDING_MODEL, TOP_K
+from exceptions import VectorStoreError
 
 
 # ============================================================================
@@ -46,14 +49,14 @@ class VectorStore:
             print("Using OpenAI embeddings...")
             self.embeddings = OpenAIEmbeddings(
                 openai_api_key=api_key,
-                model="text-embedding-3-small"
+                model= OPENAI_EMBEDDING_MODEL
             )
         else:
             # Use HuggingFace embeddings (free, good quality, runs locally)
             print("Using HuggingFace embeddings (free, local)...")
             self.embeddings = HuggingFaceEmbeddings(
-                model_name="all-MiniLM-L6-v2",  # Fast, good quality
-                model_kwargs={'device': 'cpu'},  # Use CPU (no GPU needed)
+                model_name=HF_EMBEDDING_MODEL,  # Fast, good quality
+                model_kwargs={'device': EMBEDDING_DEVICE},  # Use specified device
                 encode_kwargs={'normalize_embeddings': True}  # Better similarity
             )
         
@@ -90,10 +93,11 @@ class VectorStore:
             return len(chunks)
         
         except Exception as e:
-            raise Exception(f"Error creating vector store: {str(e)}")
+            # raise Exception(f"Error creating vector store: {e!s}")
+            raise VectorStoreError(f"Error creating vector store: {e}") from e
     
     
-    def similarity_search(self, question, k=3):
+    def similarity_search(self, question, k=TOP_K):
         """
         Search for chunks most similar to the question.
         
@@ -119,7 +123,8 @@ class VectorStore:
             return results
         
         except Exception as e:
-            raise Exception(f"Error during similarity search: {str(e)}")
+            # raise Exception(f"Error during similarity search: {e!s}")
+            raise VectorStoreError(f"Error creating vector store: {e}") from e
     
     
     def get_vectorstore(self):

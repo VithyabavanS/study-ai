@@ -7,9 +7,11 @@ Handles question-answering using retrieved context and LLM.
 # ============================================================================
 # IMPORTS
 # ============================================================================
-from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+
+from config import LLM_MODEL, LLM_TEMPERATURE, TOP_K
 
 
 # ============================================================================
@@ -58,8 +60,8 @@ Answer:"""
             # Use OpenAI GPT (paid, high quality)
             self.llm = ChatOpenAI(
                 openai_api_key=api_key,
-                model_name="gpt-3.5-turbo",
-                temperature=0
+                model_name=LLM_MODEL,
+                temperature=LLM_TEMPERATURE
             )
         else:
             self.llm = None
@@ -103,7 +105,7 @@ Answer:"""
         return top_sentences
     
     
-    def get_answer(self, question, k=3):
+    def get_answer(self, question, k=TOP_K):
         """
         Get answer to a question using retrieved context.
         
@@ -164,8 +166,8 @@ Answer:"""
                     "sources": relevant_docs
                 }
         
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - temporary, chat engine is rewritten in Step 2
             return {
-                "answer": f"❌ Error generating answer: {str(e)}",
+                "answer": f"❌ Error generating answer: {e!s}",
                 "sources": []
             }

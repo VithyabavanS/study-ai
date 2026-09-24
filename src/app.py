@@ -1,13 +1,19 @@
 # ============================================================================
 # IMPORTS
 # ============================================================================
-import streamlit as st
-import os
-from dotenv import load_dotenv
-from document_processor import DocumentProcessor
-from vector_store import VectorStore
-from chat_engine import ChatEngine
 
+import streamlit as st
+from dotenv import load_dotenv
+
+from chat_engine import ChatEngine
+from config import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    TOP_K,
+)
+from document_processor import DocumentProcessor
+from exceptions import StudyAIError
+from vector_store import VectorStore
 
 # ============================================================================
 # PAGE CONFIGURATION
@@ -429,7 +435,7 @@ def main():
             if st.button("⚡ Process Document", use_container_width=True):
                 with st.spinner("Processing..."):
                     try:
-                        processor = DocumentProcessor(uploaded_file, chunk_size=1000, chunk_overlap=200)
+                        processor = DocumentProcessor(uploaded_file, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
                         chunks = processor.process()
                         st.session_state.processed_chunks = chunks
                         
@@ -442,8 +448,8 @@ def main():
                         st.session_state.vectorstore = vs
                         
                         st.success(f"✨ Ready! {len(chunks)} chunks created")
-                    except Exception as e:
-                        st.error(f"Error: {str(e)}")
+                    except StudyAIError as e:
+                        st.error(f"Error: {e!s}")
         
         # Stats if processed
         if st.session_state.processed_chunks:
@@ -491,7 +497,7 @@ def main():
                             use_openai=use_openai and bool(api_key)
                         )
                         
-                        result = chat_engine.get_answer(question, k=3)
+                        result = chat_engine.get_answer(question, k=TOP_K)
                         
                         # Display answer
                         st.markdown("""
@@ -518,8 +524,8 @@ def main():
                             "question": question,
                             "answer": result["answer"]
                         })
-                    except Exception as e:
-                        st.error(f"Error: {str(e)}")
+                    except StudyAIError as e:
+                        st.error(f"Error: {e!s}")
     
     # Chat History
     if st.session_state.chat_history:
