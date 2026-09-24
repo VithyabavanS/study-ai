@@ -6,6 +6,11 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from chat_engine import ChatEngine
+from config import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    TOP_K,
+)
 from document_processor import DocumentProcessor
 from exceptions import StudyAIError
 from vector_store import VectorStore
@@ -430,7 +435,7 @@ def main():
             if st.button("⚡ Process Document", use_container_width=True):
                 with st.spinner("Processing..."):
                     try:
-                        processor = DocumentProcessor(uploaded_file, chunk_size=1000, chunk_overlap=200)
+                        processor = DocumentProcessor(uploaded_file, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
                         chunks = processor.process()
                         st.session_state.processed_chunks = chunks
                         
@@ -492,7 +497,7 @@ def main():
                             use_openai=use_openai and bool(api_key)
                         )
                         
-                        result = chat_engine.get_answer(question, k=3)
+                        result = chat_engine.get_answer(question, k=TOP_K)
                         
                         # Display answer
                         st.markdown("""

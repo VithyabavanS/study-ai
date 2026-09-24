@@ -14,6 +14,7 @@ import tempfile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader  # Updated
 
+from config import CHUNK_OVERLAP, CHUNK_SIZE
 from exceptions import DocumentProcessingError
 
 # Hint: We need PyPDFLoader and RecursiveCharacterTextSplitter from langchain
@@ -32,7 +33,7 @@ class DocumentProcessor:
         chunk_overlap: Overlap between chunks (to maintain context)
     """
     
-    def __init__(self, file, chunk_size=1000, chunk_overlap=200):
+    def __init__(self, file, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP):
         """
         Initialize the document processor.
         

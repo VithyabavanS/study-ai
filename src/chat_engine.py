@@ -11,6 +11,8 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 
+from config import LLM_MODEL, LLM_TEMPERATURE, TOP_K
+
 
 # ============================================================================
 # CHAT ENGINE CLASS
@@ -58,8 +60,8 @@ Answer:"""
             # Use OpenAI GPT (paid, high quality)
             self.llm = ChatOpenAI(
                 openai_api_key=api_key,
-                model_name="gpt-3.5-turbo",
-                temperature=0
+                model_name=LLM_MODEL,
+                temperature=LLM_TEMPERATURE
             )
         else:
             self.llm = None
@@ -103,7 +105,7 @@ Answer:"""
         return top_sentences
     
     
-    def get_answer(self, question, k=3):
+    def get_answer(self, question, k=TOP_K):
         """
         Get answer to a question using retrieved context.
         
