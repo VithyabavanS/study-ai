@@ -8,3 +8,7 @@ class DocumentProcessingError(StudyAIError):
 
 class VectorStoreError(StudyAIError):
     """Raised when embedding, storing, or searching fails."""
+
+
+class LLMError(StudyAIError):
+    """Raised when the language model request fails."""

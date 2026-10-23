@@ -1,6 +1,7 @@
 # ============================================================================
 # IMPORTS
 # ============================================================================
+import os
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -9,6 +10,7 @@ from chat_engine import ChatEngine
 from config import (
     CHUNK_OVERLAP,
     CHUNK_SIZE,
+    LLM_MODEL,
     TOP_K,
 )
 from document_processor import DocumentProcessor
@@ -440,10 +442,8 @@ def main():
                         st.session_state.processed_chunks = chunks
                         
                         # Get API key from sidebar if exists
-                        api_key = st.session_state.get('api_key', None)
-                        use_openai = st.session_state.get('use_openai', False)
-                        
-                        vs = VectorStore(api_key=api_key, use_openai=use_openai)
+                        vs = VectorStore(use_openai=False)
+
                         vs.create_vectorstore(chunks)
                         st.session_state.vectorstore = vs
                         
@@ -488,14 +488,7 @@ def main():
             else:
                 with st.spinner("Thinking..."):
                     try:
-                        api_key = st.session_state.get('api_key', None)
-                        use_openai = st.session_state.get('use_openai', False)
-                        
-                        chat_engine = ChatEngine(
-                            vectorstore=st.session_state.vectorstore,
-                            api_key=api_key,
-                            use_openai=use_openai and bool(api_key)
-                        )
+                        chat_engine = ChatEngine(vectorstore=st.session_state.vectorstore)
                         
                         result = chat_engine.get_answer(question, k=TOP_K)
                         
@@ -543,13 +536,10 @@ def main():
     # Sidebar for settings
     with st.sidebar:
         st.markdown("### ⚙️ Settings")
-        api_key = st.text_input("OpenAI API Key", type="password", key="api_key")
-        use_openai = st.checkbox("Use GPT Mode", key="use_openai")
-        
-        if use_openai and api_key:
-            st.success("🤖 AI Mode Active")
+        if os.getenv("GEMINI_API_KEY"):
+            st.success(f"🤖 AI Mode: {LLM_MODEL}")
         else:
-            st.info("🆓 Free Mode")
+            st.info("🆓 Free Mode. Add GEMINI_API_KEY to .env for AI answers.")
 
 
 if __name__ == "__main__":
