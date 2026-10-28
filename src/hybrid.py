@@ -1,6 +1,7 @@
 """Keyword (BM25) and hybrid (BM25 + vector) retrieval."""
 
 import string
+import unicodedata
 
 from rank_bm25 import BM25Okapi
 
@@ -13,7 +14,9 @@ def tokenize(text):
     Whitespace splitting (instead of a \\w regex) keeps Tamil words intact,
     because Tamil vowel signs are not 'word characters' in Python regex.
     """
+    text = unicodedata.normalize("NFC", text)
     tokens = (token.strip(string.punctuation) for token in text.lower().split())
+    
     return [token for token in tokens if token]
 
 

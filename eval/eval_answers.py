@@ -1,12 +1,19 @@
-"""Answer evaluation: are answers correct and supported by the retrieved text?"""
+"""Answer evaluation: are answers correct and supported by the retrieved text?
 
+Usage:
+    python eval/eval_answers.py
+    python eval/eval_answers.py --questions eval/questions_ta.jsonl
+"""
+
+import argparse
 import json
 import os
 import time
 from pathlib import Path
 
+from check_questions import DEFAULT_QUESTIONS
 from dotenv import load_dotenv
-from eval_retrieval import build_store, load_questions
+from eval_retrieval import build_store, load_questions, results_suffix
 from google import genai
 from google.genai import types
 
@@ -16,7 +23,6 @@ from config import LLM_MODEL, RETRIEVAL_MODE, TOP_K
 load_dotenv()
 
 PAUSE_SECONDS = 7  # stay under free-tier requests-per-minute limits
-RESULTS_FILE = Path(f"eval/results/answers_{RETRIEVAL_MODE}.json")
 
 JUDGE_PROMPT = """You are grading a question-answering system.
 
@@ -54,11 +60,18 @@ def judge(client, question, expected, answer, sources):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Evaluate answer quality.")
+    parser.add_argument("--questions", type=Path, default=DEFAULT_QUESTIONS)
+    args = parser.parse_args()
+    results_file = Path(
+        f"eval/results/answers_{RETRIEVAL_MODE}{results_suffix(args.questions)}.json"
+    )
+
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     stores = {}
     rows = []
 
-    for q in load_questions():
+    for q in load_questions(args.questions):
         if q["doc"] not in stores:
             stores[q["doc"]] = build_store(q["doc"])
         result = ChatEngine(stores[q["doc"]]).get_answer(q["question"], k=TOP_K)
@@ -71,8 +84,8 @@ def main():
         print(f"{q['id']}: correct={grade['correct']} faithful={grade['faithful']} | {grade['reason']}")
 
     n = len(rows)
-
     summary = {
+        "questions_file": str(args.questions),
         "questions": n,
         "retrieval_mode": RETRIEVAL_MODE,
         "top_k": TOP_K,
@@ -82,8 +95,8 @@ def main():
     }
     print(json.dumps(summary, indent=2))
 
-    RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS_FILE.write_text(
+    results_file.parent.mkdir(parents=True, exist_ok=True)
+    results_file.write_text(
         json.dumps({"summary": summary, "per_question": rows}, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )

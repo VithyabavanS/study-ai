@@ -1,14 +1,15 @@
 {
   "summary": {
     "mode": "hybrid_rerank",
+    "questions_file": "eval\\questions.jsonl",
     "questions": 20,
     "chunk_size": 1000,
     "chunk_overlap": 200,
     "hit@1": 0.8,
     "hit@3": 0.95,
     "hit@5": 0.95,
-    "mrr@5": 0.867,
-    "avg_latency_ms": 316
+    "mrr@5": 0.858,
+    "avg_latency_ms": 570
   },
   "per_question": [
     {
@@ -29,7 +30,7 @@
     },
     {
       "id": "q06",
-      "rank": 2
+      "rank": 3
     },
     {
       "id": "q07",

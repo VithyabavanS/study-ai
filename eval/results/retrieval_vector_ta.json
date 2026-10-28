@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "mode": "vector",
+    "questions_file": "eval\\questions_ta.jsonl",
+    "questions": 12,
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "hit@1": 0.0,
+    "hit@3": 0.167,
+    "hit@5": 0.167,
+    "mrr@5": 0.069,
+    "avg_latency_ms": 13
+  },
+  "per_question": [
+    {
+      "id": "ta01",
+      "rank": null
+    },
+    {
+      "id": "ta02",
+      "rank": null
+    },
+    {
+      "id": "en01",
+      "rank": null
+    },
+    {
+      "id": "ta03",
+      "rank": null
+    },
+    {
+      "id": "ta04",
+      "rank": null
+    },
+    {
+      "id": "ta05",
+      "rank": null
+    },
+    {
+      "id": "ta06",
+      "rank": null
+    },
+    {
+      "id": "ta07",
+      "rank": null
+    },
+    {
+      "id": "ta08",
+      "rank": 2
+    },
+    {
+      "id": "ta09",
+      "rank": null
+    },
+    {
+      "id": "en02",
+      "rank": null
+    },
+    {
+      "id": "en03",
+      "rank": 3
+    }
+  ]
+}

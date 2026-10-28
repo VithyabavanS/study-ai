@@ -1,0 +1,15 @@
+{"id": "ta01", "doc": "photosynthesis_ta.pdf", "question": "தாவரங்களில் ஒளித்தொகுப்புக்கு பெரும்பாலும் உதவும் நிறமி எது?", "answer": "பச்சையம் (குளோரோபில்).", "evidence": "பச்சையம் என்ற நிறமி"}
+{"id": "ta02", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுதி II எந்த அலைநீள ஒளியை சிறப்பாக உறிஞ்சுகிறது?", "answer": "680 nm; அதனால் அது P680 என அழைக்கப்படுகிறது.", "evidence": "680 nm"}
+{"id": "en01", "doc": "photosynthesis_ta.pdf", "question": "Who observed that light intensity and temperature limit each other's effect on photosynthesis?", "answer": "Frederick Blackman.", "evidence": "ஃப்ரெடரிக் பிளாக்மான்"}
+{"id": "ta03", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுப்பில் இலத்திரன்களை முக்கியமாக வழங்குவது எது?", "answer": "நீர்.", "evidence": "பிரதான இலத்திரன் வழங்கியாக நீர்"}
+{"id": "ta04", "doc": "photosynthesis_ta.pdf", "question": "ஒளிச்சேர்க்கையில் எலக்ட்ரான்களைக் கொடுப்பது எது?", "answer": "நீர் (இலத்திரன் வழங்கி).", "evidence": "பிரதான இலத்திரன் வழங்கியாக நீர்"}
+{"id": "ta05", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தாக்கங்கள் பசுங்கனிகத்தின் எந்தப் பகுதியில் நடைபெறுகின்றன?", "answer": "தைலக்கொய்ட் மென்சவ்வில்.", "evidence": "தைலக்கொய்ட் மென்சவ்வில்"}
+{"id": "ta06", "doc": "photosynthesis_ta.pdf", "question": "இருட்தாக்கங்கள் எங்கே நிகழ்கின்றன?", "answer": "பசுங்கனிகத்தின் ஸ்ட்ரோமாவில்.", "evidence": "ஸ்ட்ரோமாவில் நிகழ்கின்றன"}
+{"id": "ta07", "doc": "photosynthesis_ta.pdf", "question": "கல்வின் வட்டத்தில் மிக முக்கியமான நொதியம் எது?", "answer": "RuBisCO.", "evidence": "மிக முக்கியமான நொதியமாக"}
+{"id": "ta08", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுப்பின் வேகத்தைப் பாதிக்கும் காரணிகள் யாவை?", "answer": "ஒளிச்செறிவும் அலைநீளமும், காபனீரொக்சைட்டுச் செறிவு, வெப்பநிலை.", "evidence": "மூன்று காரணிகள்"}
+{"id": "ta09", "doc": "photosynthesis_ta.pdf", "question": "சோளம் போன்ற தாவரங்கள் ஒளிச்சுவாசத்தைக் குறைக்க எந்த முறையைப் பயன்படுத்துகின்றன?", "answer": "C4 ஒளித்தொகுப்பு முறை.", "evidence": "சோளம் போன்ற"}
+{"id": "ta10", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுப்பை முதன்முதலில் கண்டுபிடித்த விஞ்ஞானி யார்?", "answer": "ஆவணத்தில் இல்லை.", "evidence": null}
+{"id": "ta11", "doc": "photosynthesis_ta.pdf", "question": "ஒரு இலை ஒரு நாளில் எத்தனை கிராம் குளுக்கோசை உருவாக்கும்?", "answer": "ஆவணத்தில் இல்லை.", "evidence": null}
+{"id": "en02", "doc": "photosynthesis_ta.pdf", "question": "How much energy does photosynthesis capture compared with human energy use?", "answer": "About 100 terawatts, roughly seven times humanity's total energy use.", "evidence": "ஏழு மடங்காகும்"}
+{"id": "en03", "doc": "photosynthesis_ta.pdf", "question": "What do some microbes use instead of water as an electron donor?", "answer": "Arsenite.", "evidence": "ஆர்சனைட்டைப் பயன்படுத்துகின்றன"}
+{"id": "en04", "doc": "photosynthesis_ta.pdf", "question": "Which country produces the most oxygen through photosynthesis?", "answer": "Not in the document.", "evidence": null}
