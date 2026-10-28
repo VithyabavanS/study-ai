@@ -6,6 +6,9 @@ CHUNK_OVERLAP = 200
 
 # Retrieval
 TOP_K = 3
+RETRIEVAL_MODE = "vector"  # "vector", "bm25" or "hybrid"
+CANDIDATES = 20            # results fetched from each retriever before fusion
+RRF_K = 60                 # standard RRF constant
 
 # LLM
 LLM_PROVIDER = "gemini"

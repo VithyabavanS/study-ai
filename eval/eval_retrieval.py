@@ -1,15 +1,21 @@
-"""Retrieval evaluation: does the retriever find the evidence passage?"""
+"""Retrieval evaluation: does the retriever find the evidence passage?
 
+Usage:
+    python eval/eval_retrieval.py --mode vector|bm25|hybrid
+"""
+
+import argparse
 import json
 from pathlib import Path
 
 from check_questions import DOCS_DIR, QUESTIONS_FILE, normalize
-from config import CHUNK_OVERLAP, CHUNK_SIZE
+from config import CHUNK_OVERLAP, CHUNK_SIZE, RETRIEVAL_MODE
 from document_processor import DocumentProcessor
+from hybrid import BM25Retriever, HybridRetriever
 from vector_store import VectorStore
 
 K = 5
-RESULTS_FILE = Path("eval/results/retrieval.json")
+MODES = ("vector", "bm25", "hybrid")
 
 
 class LocalFile:
@@ -38,23 +44,34 @@ def find_rank(results, evidence):
     return None
 
 
-def build_store(doc_name):
+def build_store(doc_name, mode=RETRIEVAL_MODE):
+    """Build the retriever for one document: vector, bm25 or hybrid."""
     processor = DocumentProcessor(
         LocalFile(DOCS_DIR / doc_name), chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
     )
+    chunks = processor.process()
+    if mode == "bm25":
+        return BM25Retriever(chunks)
+
     store = VectorStore(use_openai=False)
-    store.create_vectorstore(processor.process())
+    store.create_vectorstore(chunks)
+    if mode == "hybrid":
+        return HybridRetriever(store, chunks)
     return store
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Evaluate retrieval quality.")
+    parser.add_argument("--mode", choices=MODES, default=RETRIEVAL_MODE)
+    mode = parser.parse_args().mode
+
     questions = [q for q in load_questions() if q["evidence"]]
     stores = {}
     rows = []
 
     for q in questions:
         if q["doc"] not in stores:
-            stores[q["doc"]] = build_store(q["doc"])
+            stores[q["doc"]] = build_store(q["doc"], mode)
         results = stores[q["doc"]].similarity_search(q["question"], k=K)
         rank = find_rank(results, q["evidence"])
         rows.append({"id": q["id"], "rank": rank})
@@ -62,6 +79,7 @@ def main():
 
     n = len(rows)
     summary = {
+        "mode": mode,
         "questions": n,
         "chunk_size": CHUNK_SIZE,
         "chunk_overlap": CHUNK_OVERLAP,
@@ -72,8 +90,9 @@ def main():
     }
     print(json.dumps(summary, indent=2))
 
-    RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS_FILE.write_text(
+    results_file = Path(f"eval/results/retrieval_{mode}.json")
+    results_file.parent.mkdir(parents=True, exist_ok=True)
+    results_file.write_text(
         json.dumps({"summary": summary, "per_question": rows}, indent=2), encoding="utf-8"
     )
 
