@@ -1,0 +1,45 @@
+{
+  "summary": {
+    "questions": 8,
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "hit@1": 0.25,
+    "hit@3": 0.625,
+    "hit@5": 0.875,
+    "mrr@5": 0.467
+  },
+  "per_question": [
+    {
+      "id": "q01",
+      "rank": 2
+    },
+    {
+      "id": "q02",
+      "rank": 5
+    },
+    {
+      "id": "q04",
+      "rank": 1
+    },
+    {
+      "id": "q05",
+      "rank": 5
+    },
+    {
+      "id": "q06",
+      "rank": null
+    },
+    {
+      "id": "q07",
+      "rank": 2
+    },
+    {
+      "id": "q08",
+      "rank": 1
+    },
+    {
+      "id": "q09",
+      "rank": 3
+    }
+  ]
+}
