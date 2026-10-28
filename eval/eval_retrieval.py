@@ -6,16 +6,20 @@ Usage:
 
 import argparse
 import json
+import time
 from pathlib import Path
 
 from check_questions import DOCS_DIR, QUESTIONS_FILE, normalize
+
 from config import CHUNK_OVERLAP, CHUNK_SIZE, RETRIEVAL_MODE
 from document_processor import DocumentProcessor
 from hybrid import BM25Retriever, HybridRetriever
+from reranker import RerankingRetriever
 from vector_store import VectorStore
 
 K = 5
-MODES = ("vector", "bm25", "hybrid")
+
+MODES = ("vector", "bm25", "hybrid", "hybrid_rerank")
 
 
 class LocalFile:
@@ -55,8 +59,11 @@ def build_store(doc_name, mode=RETRIEVAL_MODE):
 
     store = VectorStore(use_openai=False)
     store.create_vectorstore(chunks)
+    
     if mode == "hybrid":
         return HybridRetriever(store, chunks)
+    if mode == "hybrid_rerank":
+        return RerankingRetriever(HybridRetriever(store, chunks))
     return store
 
 
@@ -68,11 +75,16 @@ def main():
     questions = [q for q in load_questions() if q["evidence"]]
     stores = {}
     rows = []
+    latencies = []
 
     for q in questions:
         if q["doc"] not in stores:
             stores[q["doc"]] = build_store(q["doc"], mode)
+
+        start = time.perf_counter()
         results = stores[q["doc"]].similarity_search(q["question"], k=K)
+        latencies.append(time.perf_counter() - start)
+
         rank = find_rank(results, q["evidence"])
         rows.append({"id": q["id"], "rank": rank})
         print(f"{q['id']}: rank {rank if rank else '-'}")
@@ -87,6 +99,7 @@ def main():
         "hit@3": round(sum(1 for r in rows if r["rank"] and r["rank"] <= 3) / n, 3),
         "hit@5": round(sum(1 for r in rows if r["rank"] and r["rank"] <= 5) / n, 3),
         "mrr@5": round(sum(1 / r["rank"] for r in rows if r["rank"]) / n, 3),
+        "avg_latency_ms": round(1000 * sum(latencies) / n),
     }
     print(json.dumps(summary, indent=2))
 

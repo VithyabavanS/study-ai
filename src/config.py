@@ -10,6 +10,9 @@ RETRIEVAL_MODE = "vector"  # "vector", "bm25" or "hybrid"
 CANDIDATES = 20            # results fetched from each retriever before fusion
 RRF_K = 60                 # standard RRF constant
 
+RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+RERANK_CANDIDATES = 10     # chunks passed to the reranker
+
 # LLM
 LLM_PROVIDER = "gemini"
 LLM_MODEL = "gemini-3.5-flash-lite"
