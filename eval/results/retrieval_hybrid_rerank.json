@@ -8,7 +8,7 @@
     "hit@3": 0.95,
     "hit@5": 0.95,
     "mrr@5": 0.867,
-    "avg_latency_ms": 314
+    "avg_latency_ms": 316
   },
   "per_question": [
     {

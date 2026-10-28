@@ -12,7 +12,9 @@ import os
 import tempfile
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader  # Updated
+from langchain_community.document_loaders import (
+    PyPDFLoader,  # Updated
+)
 
 from config import CHUNK_OVERLAP, CHUNK_SIZE
 from exceptions import DocumentProcessingError

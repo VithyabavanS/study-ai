@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from pypdf import PdfReader
+import pymupdf
 
 DOCS_DIR = Path("data/eval_docs")
 QUESTIONS_FILE = Path("eval/questions.jsonl")
@@ -16,8 +16,8 @@ def normalize(text):
 
 
 def load_text(doc_name):
-    reader = PdfReader(DOCS_DIR / doc_name)
-    return normalize(" ".join(page.extract_text() or "" for page in reader.pages))
+    with pymupdf.open(DOCS_DIR / doc_name) as pdf:
+        return normalize(" ".join(page.get_text() for page in pdf))
 
 
 def main():
