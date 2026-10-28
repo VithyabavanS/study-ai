@@ -1,12 +1,12 @@
 {
   "summary": {
-    "questions": 8,
+    "questions": 20,
     "chunk_size": 1000,
     "chunk_overlap": 200,
-    "hit@1": 0.25,
-    "hit@3": 0.625,
-    "hit@5": 0.875,
-    "mrr@5": 0.467
+    "hit@1": 0.4,
+    "hit@3": 0.75,
+    "hit@5": 0.85,
+    "mrr@5": 0.578
   },
   "per_question": [
     {
@@ -40,6 +40,54 @@
     {
       "id": "q09",
       "rank": 3
+    },
+    {
+      "id": "q11",
+      "rank": null
+    },
+    {
+      "id": "q12",
+      "rank": 1
+    },
+    {
+      "id": "q13",
+      "rank": null
+    },
+    {
+      "id": "q14",
+      "rank": 1
+    },
+    {
+      "id": "q15",
+      "rank": 1
+    },
+    {
+      "id": "q16",
+      "rank": 1
+    },
+    {
+      "id": "q17",
+      "rank": 2
+    },
+    {
+      "id": "q18",
+      "rank": 3
+    },
+    {
+      "id": "q19",
+      "rank": 1
+    },
+    {
+      "id": "q20",
+      "rank": 1
+    },
+    {
+      "id": "q21",
+      "rank": 2
+    },
+    {
+      "id": "q22",
+      "rank": 2
     }
   ]
 }

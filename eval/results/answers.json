@@ -1,9 +1,9 @@
 {
   "summary": {
-    "questions": 10,
+    "questions": 25,
     "top_k": 3,
     "model": "gemini-3.5-flash-lite",
-    "accuracy": 0.7,
+    "accuracy": 0.84,
     "faithfulness": 1.0
   },
   "per_question": [
@@ -12,70 +12,175 @@
       "answer": "The Transformer encoder is composed of a stack of $N = 6$ identical layers [2].",
       "correct": true,
       "faithful": true,
-      "reason": "The system correctly identifies that the Transformer encoder has 6 identical layers, which is supported by the context."
+      "reason": "The system correctly identifies that the encoder has 6 identical layers, which is supported by the context."
     },
     {
       "id": "q02",
-      "answer": "On the WMT 2014 English-to-German translation task, the big Transformer model achieves a BLEU score of 28.4 [1, 2].",
+      "answer": "On the WMT 2014 English-to-German translation task, the big Transformer model establishes a new state-of-the-art BLEU score of 28.4 [1, 2].",
       "correct": true,
       "faithful": true,
-      "reason": "The system answer correctly provides the expected BLEU score of 28.4 and is fully supported by the retrieved context."
+      "reason": "The system answer correctly states the BLEU score of 28.4 for the big Transformer model on WMT 2014 English-to-German, which is fully supported by the context."
     },
     {
       "id": "q03",
       "answer": "I couldn't find this in the document.",
       "correct": true,
       "faithful": true,
-      "reason": "The system correctly identified that the information is not in the document."
+      "reason": "The system correctly stated it could not find the answer in the document, which matches the expected answer."
     },
     {
       "id": "q04",
-      "answer": "In this work, the Transformer employs $h = 8$ parallel attention layers, or heads [1].",
+      "answer": "In this work, $h = 8$ parallel attention layers, or heads, are employed [1].",
       "correct": true,
       "faithful": true,
-      "reason": "The system answer correctly identifies that the Transformer uses 8 attention heads, which is supported by the context."
+      "reason": "The system answer correctly identifies that h = 8 attention heads are used, which matches both the expected answer and the retrieved context."
     },
     {
       "id": "q05",
       "answer": "I couldn't find this in the document.",
       "correct": false,
       "faithful": true,
-      "reason": "The system answer states it could not find the information, whereas the expected answer provides the specific dimensionality."
+      "reason": "The system stated it could not find the answer, but the information is actually not present in the retrieved context, making it correct to say so based strictly on the context, yet incorrect compared to the expected answer."
     },
     {
       "id": "q06",
       "answer": "I couldn't find this in the document.",
       "correct": false,
       "faithful": true,
-      "reason": "The system answer states it could not find the information, but the expected answer provides the optimizer details which are true."
+      "reason": "The expected answer is present in the Transformer paper, but the retrieved context did not include the optimizer section, making the system's inability to find it technically faithful to the context though incorrect regarding the document's full content."
     },
     {
       "id": "q07",
-      "answer": "I couldn't find this in the document.",
-      "correct": false,
+      "answer": "Based on the provided context, the models were trained on one machine with 8 NVIDIA P100 GPUs [2].",
+      "correct": true,
       "faithful": true,
-      "reason": "The system answer says it could not find the information, but the hardware details are actually missing from the retrieved context."
+      "reason": "The system answer correctly identifies the hardware used for training as stated in the context."
     },
     {
       "id": "q08",
       "answer": "To counteract the effect of dot products growing large in magnitude for large values of $d_k$, which pushes the softmax function into regions where it has extremely small gradients [1].",
       "correct": true,
       "faithful": true,
-      "reason": "The system answer accurately captures the expected explanation and is fully supported by the retrieved context."
+      "reason": "The system answer accurately and completely matches the expected answer and is fully supported by the retrieved context."
     },
     {
       "id": "q09",
       "answer": "During training, a label smoothing value of $\\epsilon_{ls} = 0.1$ was used [3].",
       "correct": true,
       "faithful": true,
-      "reason": "The system answer correctly identifies the label smoothing value as 0.1, which is directly supported by the retrieved context."
+      "reason": "The system answer correctly identifies the label smoothing value as 0.1, which is supported by the context."
     },
     {
       "id": "q10",
       "answer": "I couldn't find this in the document.",
       "correct": true,
       "faithful": true,
-      "reason": "The system correctly identified that the information is not present in the document."
+      "reason": "The system correctly stated it could not find the answer, which matches the expected answer and context."
+    },
+    {
+      "id": "q11",
+      "answer": "I couldn't find this in the document.",
+      "correct": false,
+      "faithful": true,
+      "reason": "The system stated it could not find the answer, whereas the expected answer is ReLU."
+    },
+    {
+      "id": "q12",
+      "answer": "The output dimension of all sub-layers and embedding layers in the model is $d_{\\text{model}} = 512$ [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the output dimension as 512, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q13",
+      "answer": "Based on the provided context, the Transformer uses sinusoidal positional encoding (though it can also be replaced with learned positional embeddings) [3].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identifies sinusoidal positional encoding and mentions learned embeddings as supported by the text."
+    },
+    {
+      "id": "q14",
+      "answer": "The authors chose the sinusoidal version because it may allow the model to extrapolate to sequence lengths longer than the ones encountered during training [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the reason from the context that sinusoidal encodings allow for sequence length extrapolation."
+    },
+    {
+      "id": "q15",
+      "answer": "Based on the provided context, the WMT 2014 English-German dataset consists of about 4.5 million sentence pairs [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies that there are about 4.5 million sentence pairs, which is supported by the context."
+    },
+    {
+      "id": "q16",
+      "answer": "The base models were trained for a total of 100,000 steps or 12 hours [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately states the training duration for the base models as 100,000 steps or 12 hours, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q17",
+      "answer": "For the base model, a dropout rate of $P_{drop} = 0.1$ was used [2].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified the dropout rate of 0.1 for the base model, which is fully supported by the context."
+    },
+    {
+      "id": "q18",
+      "answer": "A beam size of 4 was used for decoding [3].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified the beam size of 4, which is supported by the context."
+    },
+    {
+      "id": "q19",
+      "answer": "The learning rate schedule uses `warmup_steps = 4000` [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately states the number of warmup steps as 4000, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q20",
+      "answer": "Self-attention layers are faster than recurrent layers when the sequence length $n$ is smaller than the representation dimensionality $d$ [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately matches the expected answer and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q21",
+      "answer": "Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions [2].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer matches the expected answer verbatim and is directly supported by the retrieved context."
+    },
+    {
+      "id": "q22",
+      "answer": "To prevent positions from attending to subsequent (later) positions, the decoder modifies the self-attention sub-layer [2]. This is implemented inside the scaled dot-product attention by masking out (setting to $-\\infty$) all values in the input of the softmax that correspond to illegal connections [1].",
+      "correct": false,
+      "faithful": true,
+      "reason": "The system answer misses the detail about offsetting the output embeddings by one position."
+    },
+    {
+      "id": "q23",
+      "answer": "I couldn't find this in the document.",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified that the requested information was not present in the document."
+    },
+    {
+      "id": "q24",
+      "answer": "Based on the provided context, each training batch contained a set of sentence pairs with approximately 25,000 source tokens and 25,000 target tokens [1]. The text does not specify the exact number of *sentences* in each training batch.",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified that the exact number of sentences is not specified, relying only on token counts."
+    },
+    {
+      "id": "q25",
+      "answer": "I couldn't find this in the document.",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified that the information is not in the document."
     }
   ]
 }
