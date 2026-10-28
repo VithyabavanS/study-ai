@@ -8,7 +8,8 @@ CHUNK_OVERLAP = 200
 TOP_K = 3
 
 # LLM
-LLM_MODEL = "gpt-3.5-turbo"
+LLM_PROVIDER = "gemini"
+LLM_MODEL = "gemini-3.5-flash-lite"
 LLM_TEMPERATURE = 0
 
 # Embeddings
