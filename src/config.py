@@ -19,6 +19,17 @@ LLM_MODEL = "gemini-3.5-flash-lite"
 LLM_TEMPERATURE = 0
 
 # Embeddings
-OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
-HF_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+EMBEDDING_MODELS = {
+    "minilm": {
+        "name": "sentence-transformers/all-MiniLM-L6-v2",  # English only
+        "query_prefix": "",
+        "passage_prefix": "",
+    },
+    "e5-small": {
+        "name": "intfloat/multilingual-e5-small",  # ~100 languages incl. Tamil
+        "query_prefix": "query: ",
+        "passage_prefix": "passage: ",
+    },
+}
+EMBEDDING_MODEL = "e5-small"
 EMBEDDING_DEVICE = "cpu"

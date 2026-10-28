@@ -15,7 +15,7 @@ def build_retriever(chunks, mode=RETRIEVAL_MODE, reranker_model=None):
     if mode == "bm25":
         return BM25Retriever(chunks)
 
-    store = VectorStore(use_openai=False)
+    store = VectorStore()
     store.create_vectorstore(chunks)
     if mode == "vector":
         return store

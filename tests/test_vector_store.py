@@ -6,7 +6,7 @@ from vector_store import VectorStore
 
 
 def test_vector_store_stores_and_retrieves_relevant_chunks():
-    vs = VectorStore(use_openai=False)
+    vs = VectorStore()
     chunks = [
         Document(page_content="Python is a programming language"),
         Document(page_content="Machine learning uses algorithms to learn from data"),

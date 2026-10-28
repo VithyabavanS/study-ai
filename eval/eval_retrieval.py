@@ -12,7 +12,13 @@ from pathlib import Path
 
 from check_questions import DEFAULT_QUESTIONS, DOCS_DIR, normalize
 
-from config import CHUNK_OVERLAP, CHUNK_SIZE, RETRIEVAL_MODE
+from config import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    EMBEDDING_MODEL,
+    RERANKER_MODEL,
+    RETRIEVAL_MODE,
+)
 from document_processor import DocumentProcessor
 from retrieval import MODES, build_retriever
 
@@ -63,6 +69,7 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate retrieval quality.")
     parser.add_argument("--mode", choices=MODES, default=RETRIEVAL_MODE)
     parser.add_argument("--questions", type=Path, default=DEFAULT_QUESTIONS)
+    parser.add_argument("--tag", default="", help="extra label for the results file name")
     args = parser.parse_args()
     mode = args.mode
 
@@ -93,10 +100,13 @@ def main():
         "hit@5": round(sum(1 for r in rows if r["rank"] and r["rank"] <= 5) / n, 3),
         "mrr@5": round(sum(1 / r["rank"] for r in rows if r["rank"]) / n, 3),
         "avg_latency_ms": round(1000 * sum(latencies) / n),
+        "embedding_model": EMBEDDING_MODEL,
+        "reranker_model": RERANKER_MODEL if mode == "hybrid_rerank" else None,
     }
     print(json.dumps(summary, indent=2))
 
-    results_file = Path(f"eval/results/retrieval_{mode}{results_suffix(args.questions)}.json")
+    tag = f"_{args.tag}" if args.tag else ""
+    results_file = Path(f"eval/results/retrieval_{mode}{results_suffix(args.questions)}{tag}.json")
     results_file.parent.mkdir(parents=True, exist_ok=True)
     results_file.write_text(
         json.dumps({"summary": summary, "per_question": rows}, indent=2), encoding="utf-8"
