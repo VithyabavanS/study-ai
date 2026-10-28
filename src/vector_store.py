@@ -9,6 +9,8 @@ This is the core of the RAG (Retrieval-Augmented Generation) system.
 # IMPORTS
 # ============================================================================
 
+import uuid
+
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings  # Updated!
 from langchain_openai import OpenAIEmbeddings
@@ -86,6 +88,7 @@ class VectorStore:
             self.vectorstore = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
+                collection_name=f"studyai-{uuid.uuid4().hex}",
                 # persist_directory="./chroma_db"  # Uncomment to save to disk
             )
             

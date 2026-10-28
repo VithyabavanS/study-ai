@@ -65,6 +65,8 @@ class ChatEngine:
         for chunk in chunks:
             sentences.extend(self._key_sentences(chunk.page_content, question, max_sentences=2))
 
+        sentences = list(dict.fromkeys(sentences))  # remove duplicates, keep order
+
         if not sentences:
             return NOT_FOUND_MESSAGE
 
