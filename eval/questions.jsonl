@@ -1,0 +1,10 @@
+{"id": "q01", "doc": "attention.pdf", "question": "How many identical layers does the Transformer encoder have?", "answer": "6 layers (N = 6).", "evidence": "identical layers. Each layer has two sub-layers"}
+{"id": "q02", "doc": "attention.pdf", "question": "What BLEU score does the big Transformer achieve on WMT 2014 English-to-German?", "answer": "28.4 BLEU.", "evidence": "28.4 BLEU"}
+{"id": "q03", "doc": "attention.pdf", "question": "Which cloud provider did the authors use for training?", "answer": "Not in the document.", "evidence": null}
+{"id": "q04", "doc": "attention.pdf", "question": "How many attention heads does the Transformer use?", "answer": "8 heads (h = 8).", "evidence": "parallel attention layers, or heads"}
+{"id": "q05", "doc": "attention.pdf", "question": "What is the inner-layer dimensionality of the position-wise feed-forward network?", "answer": "2048 (with input and output dimension 512).", "evidence": "the inner-layer has dimensionality"}
+{"id": "q06", "doc": "attention.pdf", "question": "Which optimizer was used to train the Transformer?", "answer": "Adam, with beta1 = 0.9, beta2 = 0.98 and a warmup learning-rate schedule.", "evidence": "We used the Adam optimizer"}
+{"id": "q07", "doc": "attention.pdf", "question": "What hardware were the models trained on?", "answer": "One machine with 8 NVIDIA P100 GPUs.", "evidence": "one machine with 8 NVIDIA P100 GPUs"}
+{"id": "q08", "doc": "attention.pdf", "question": "Why are the dot products scaled by 1/sqrt(dk) in attention?", "answer": "For large dk the dot products grow large, pushing the softmax into regions with extremely small gradients; scaling counteracts this.", "evidence": "pushing the softmax function into regions where it has"}
+{"id": "q09", "doc": "attention.pdf", "question": "What label smoothing value was used during training?", "answer": "0.1.", "evidence": "employed label smoothing of value"}
+{"id": "q10", "doc": "attention.pdf", "question": "How much did it cost in US dollars to train the Transformer?", "answer": "Not in the document (cost is given only in FLOPs).", "evidence": null}
