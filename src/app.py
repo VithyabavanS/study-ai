@@ -10,12 +10,15 @@ from chat_engine import ChatEngine
 from config import (
     CHUNK_OVERLAP,
     CHUNK_SIZE,
+    EMBEDDING_DEVICE,
     LLM_MODEL,
+    RERANKER_MODEL,
+    RETRIEVAL_MODE,
     TOP_K,
 )
 from document_processor import DocumentProcessor
 from exceptions import StudyAIError
-from vector_store import VectorStore
+from retrieval import build_retriever
 
 # ============================================================================
 # PAGE CONFIGURATION
@@ -388,6 +391,14 @@ if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
 
+@st.cache_resource
+def load_reranker():
+    """Load the cross-encoder once and reuse it across reruns and users."""
+    from sentence_transformers import CrossEncoder
+
+    return CrossEncoder(RERANKER_MODEL, device=EMBEDDING_DEVICE)
+
+
 # ============================================================================
 # MAIN APPLICATION
 # ============================================================================
@@ -442,10 +453,10 @@ def main():
                         st.session_state.processed_chunks = chunks
                         
                         # Get API key from sidebar if exists
-                        vs = VectorStore(use_openai=False)
-
-                        vs.create_vectorstore(chunks)
-                        st.session_state.vectorstore = vs
+                        reranker = load_reranker() if RETRIEVAL_MODE == "hybrid_rerank" else None
+                        st.session_state.vectorstore = build_retriever(
+                            chunks, RETRIEVAL_MODE, reranker_model=reranker
+                        )
                         
                         st.success(f"✨ Ready! {len(chunks)} chunks created")
                     except StudyAIError as e:
@@ -540,6 +551,7 @@ def main():
             st.success(f"🤖 AI Mode: {LLM_MODEL}")
         else:
             st.info("🆓 Free Mode. Add GEMINI_API_KEY to .env for AI answers.")
+        st.caption(f"Retrieval: {RETRIEVAL_MODE}")
 
 
 if __name__ == "__main__":

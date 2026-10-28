@@ -31,7 +31,7 @@ It is built as a Retrieval-Augmented Generation (RAG) pipeline written from scra
 question
    │
    ▼
-1. RETRIEVE      top-k chunks from the vector store (one search)
+1. RETRIEVE      BM25 + vector search, fused with RRF, then reranked by a cross-encoder
    │
    ▼
 2. BUILD PROMPT  instructions + numbered chunks [1], [2], ... + question
@@ -56,6 +56,8 @@ The prompt instructs the model to answer **only** from the retrieved context, to
 | PDF loading & chunking | PyPDF, LangChain text splitters |
 | Testing & linting | pytest, Ruff |
 | Configuration | python-dotenv, central `config.py` |
+| Keyword search | BM25 (`rank-bm25`) |
+| Reranking | Cross-encoder `ms-marco-MiniLM-L-6-v2` (sentence-transformers) |
 
 ## 📁 Project Structure
 
@@ -124,43 +126,58 @@ StudyAI is evaluated on a hand-written test set of 25 questions about
 Each answerable question has an exact evidence phrase from the document.
 See [`eval/`](eval/).
 
-### Baseline
-Vector search only · chunk size 1000 · overlap 200 · top-k 3 · `gemini-3.5-flash-lite`
+Setup for all runs: chunk size 1000 · overlap 200 · top-k 3 · `gemini-3.5-flash-lite`.
 
-**Retrieval** (20 answerable questions)
+### Retrieval (20 answerable questions)
 
-| Hit@1 | Hit@3 | Hit@5 | MRR@5 |
-|---|---|---|---|
-| 0.40 | 0.75 | 0.85 | 0.578 |
+| Retriever | Hit@1 | Hit@3 | Hit@5 | MRR@5 | Latency / query |
+|---|---|---|---|---|---|
+| Vector search (baseline) | 0.40 | 0.75 | 0.85 | 0.578 | – |
+| BM25 | 0.75 | 0.90 | 0.95 | 0.829 | – |
+| Hybrid: BM25 + vector, RRF | 0.55 | 0.90 | 1.00 | 0.731 | 14 ms |
+| **Hybrid + cross-encoder rerank (default)** | **0.80** | **0.95** | 0.95 | **0.867** | 314 ms |
 
-**Answers** (25 questions, LLM-as-judge)
+### Answers (25 questions, LLM-as-judge)
 
-| Accuracy | Faithfulness | Unanswerable handled correctly |
+| Retriever | Accuracy | Faithfulness |
 |---|---|---|
-| 0.84 | 1.00 | 5 / 5 |
+| Vector search (baseline) | 0.84 | 1.00 |
+| **Hybrid + rerank** | **0.96** | 0.96 |
 
-### Error analysis
-- **Retrieval misses** (q05, q06, q11): the passage with the answer was ranked
-  below the top 3 or not retrieved. The system correctly answered "not found"
-  rather than guessing.
-- **Incomplete answer** (q22): only part of the expected answer was given.
-- **No hallucinations**: every answer was supported by the retrieved text.
+Manual review of the hybrid + rerank run: the judge's one failure (q24) was a
+grading error. The system correctly said the paper gives the batch size only in
+tokens, not sentences. All 25 answers are correct in content and supported by the
+retrieved text. One answer (q14) was given in French although the question was
+in English; this is tracked as an open issue.
+
+### What the numbers show
+- **Keyword matching matters.** BM25 found exact-term answers (q06 "Adam",
+  q11 "ReLU") that vector search missed.
+- **Fusion finds, reranking orders.** Equal-weight RRF lowered Hit@1 compared with
+  BM25 alone, but placed the answer in the top 5 for every question. The
+  cross-encoder then reordered those candidates (Hit@1 0.55 → 0.80).
+- **Better retrieval means better answers.** All three baseline failures caused by
+  retrieval misses (q05, q06, q11) are now answered correctly.
+- **The cost:** reranking adds about 0.3 s per question on CPU, compared with
+  roughly 1–2 s for the LLM call itself.
 
 ### Reproduce
 ```bash
 python eval/check_questions.py
-PYTHONPATH=src:eval python eval/eval_retrieval.py
-PYTHONPATH=src:eval python eval/eval_answers.py   # needs GEMINI_API_KEY
+PYTHONPATH=src:eval python eval/eval_retrieval.py --mode vector   # or bm25, hybrid, hybrid_rerank
+PYTHONPATH=src:eval python eval/eval_answers.py                    # needs GEMINI_API_KEY
 ```
 
 ### Limitations
 - Small, single-document test set: each question is 4–5% of a score.
-- Evidence-phrase matching can undercount retrieval: some questions (q02, q13)
-  were answered correctly from a chunk that states the fact differently.
-- The judge is an LLM from the same model family. Its grades were spot-checked,
-  and its stated reasons were occasionally wrong.
-- Results vary slightly between runs even at temperature 0 (q07 changed
-  between runs), so small differences should not be over-interpreted.
+- Questions were written while reading the paper and often reuse its wording,
+  which favours keyword search (BM25). Paraphrased questions may score differently.
+- Evidence-phrase matching can undercount retrieval when a fact appears in
+  several places (q02, q13).
+- The judge is an LLM from the same model family and makes mistakes (q24 above);
+  failures were checked by hand.
+- The reranker (`ms-marco-MiniLM-L-6-v2`) is English-only.
+- Results vary slightly between runs, even at temperature 0.
 
 ## 🧪 Development
 
@@ -172,7 +189,7 @@ pytest                    # unit tests
 
 ## 🔮 Roadmap
 
-- Hybrid retrieval (BM25 + vector search) and cross-encoder reranking
+- ONNX/INT8 optimization of the reranker
 - Tamil + English (bilingual) support with multilingual embeddings
 - FastAPI backend, Docker, CI/CD and cloud deployment
 - Persistent vector storage and multi-document support

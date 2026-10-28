@@ -11,12 +11,12 @@ from google import genai
 from google.genai import types
 
 from chat_engine import ChatEngine
-from config import LLM_MODEL, TOP_K
+from config import LLM_MODEL, RETRIEVAL_MODE, TOP_K
 
 load_dotenv()
 
 PAUSE_SECONDS = 7  # stay under free-tier requests-per-minute limits
-RESULTS_FILE = Path("eval/results/answers.json")
+RESULTS_FILE = Path(f"eval/results/answers_{RETRIEVAL_MODE}.json")
 
 JUDGE_PROMPT = """You are grading a question-answering system.
 
@@ -71,8 +71,10 @@ def main():
         print(f"{q['id']}: correct={grade['correct']} faithful={grade['faithful']} | {grade['reason']}")
 
     n = len(rows)
+
     summary = {
         "questions": n,
+        "retrieval_mode": RETRIEVAL_MODE,
         "top_k": TOP_K,
         "model": LLM_MODEL,
         "accuracy": round(sum(r["correct"] for r in rows) / n, 3),

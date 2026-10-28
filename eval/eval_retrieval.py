@@ -13,13 +13,9 @@ from check_questions import DOCS_DIR, QUESTIONS_FILE, normalize
 
 from config import CHUNK_OVERLAP, CHUNK_SIZE, RETRIEVAL_MODE
 from document_processor import DocumentProcessor
-from hybrid import BM25Retriever, HybridRetriever
-from reranker import RerankingRetriever
-from vector_store import VectorStore
+from retrieval import MODES, build_retriever
 
 K = 5
-
-MODES = ("vector", "bm25", "hybrid", "hybrid_rerank")
 
 
 class LocalFile:
@@ -47,24 +43,12 @@ def find_rank(results, evidence):
             return rank
     return None
 
-
 def build_store(doc_name, mode=RETRIEVAL_MODE):
-    """Build the retriever for one document: vector, bm25 or hybrid."""
+    """Build the retriever for one document."""
     processor = DocumentProcessor(
         LocalFile(DOCS_DIR / doc_name), chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
     )
-    chunks = processor.process()
-    if mode == "bm25":
-        return BM25Retriever(chunks)
-
-    store = VectorStore(use_openai=False)
-    store.create_vectorstore(chunks)
-    
-    if mode == "hybrid":
-        return HybridRetriever(store, chunks)
-    if mode == "hybrid_rerank":
-        return RerankingRetriever(HybridRetriever(store, chunks))
-    return store
+    return build_retriever(processor.process(), mode)
 
 
 def main():
