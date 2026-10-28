@@ -1,15 +1,21 @@
-"""Retrieval evaluation: does the retriever find the evidence passage?"""
+"""Retrieval evaluation: does the retriever find the evidence passage?
 
+Usage:
+    python eval/eval_retrieval.py --mode vector|bm25|hybrid
+"""
+
+import argparse
 import json
+import time
 from pathlib import Path
 
 from check_questions import DOCS_DIR, QUESTIONS_FILE, normalize
-from config import CHUNK_OVERLAP, CHUNK_SIZE
+
+from config import CHUNK_OVERLAP, CHUNK_SIZE, RETRIEVAL_MODE
 from document_processor import DocumentProcessor
-from vector_store import VectorStore
+from retrieval import MODES, build_retriever
 
 K = 5
-RESULTS_FILE = Path("eval/results/retrieval.json")
 
 
 class LocalFile:
@@ -37,31 +43,39 @@ def find_rank(results, evidence):
             return rank
     return None
 
-
-def build_store(doc_name):
+def build_store(doc_name, mode=RETRIEVAL_MODE):
+    """Build the retriever for one document."""
     processor = DocumentProcessor(
         LocalFile(DOCS_DIR / doc_name), chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
     )
-    store = VectorStore(use_openai=False)
-    store.create_vectorstore(processor.process())
-    return store
+    return build_retriever(processor.process(), mode)
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Evaluate retrieval quality.")
+    parser.add_argument("--mode", choices=MODES, default=RETRIEVAL_MODE)
+    mode = parser.parse_args().mode
+
     questions = [q for q in load_questions() if q["evidence"]]
     stores = {}
     rows = []
+    latencies = []
 
     for q in questions:
         if q["doc"] not in stores:
-            stores[q["doc"]] = build_store(q["doc"])
+            stores[q["doc"]] = build_store(q["doc"], mode)
+
+        start = time.perf_counter()
         results = stores[q["doc"]].similarity_search(q["question"], k=K)
+        latencies.append(time.perf_counter() - start)
+
         rank = find_rank(results, q["evidence"])
         rows.append({"id": q["id"], "rank": rank})
         print(f"{q['id']}: rank {rank if rank else '-'}")
 
     n = len(rows)
     summary = {
+        "mode": mode,
         "questions": n,
         "chunk_size": CHUNK_SIZE,
         "chunk_overlap": CHUNK_OVERLAP,
@@ -69,11 +83,13 @@ def main():
         "hit@3": round(sum(1 for r in rows if r["rank"] and r["rank"] <= 3) / n, 3),
         "hit@5": round(sum(1 for r in rows if r["rank"] and r["rank"] <= 5) / n, 3),
         "mrr@5": round(sum(1 / r["rank"] for r in rows if r["rank"]) / n, 3),
+        "avg_latency_ms": round(1000 * sum(latencies) / n),
     }
     print(json.dumps(summary, indent=2))
 
-    RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS_FILE.write_text(
+    results_file = Path(f"eval/results/retrieval_{mode}.json")
+    results_file.parent.mkdir(parents=True, exist_ok=True)
+    results_file.write_text(
         json.dumps({"summary": summary, "per_question": rows}, indent=2), encoding="utf-8"
     )
 

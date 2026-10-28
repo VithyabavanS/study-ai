@@ -1,5 +1,6 @@
 {
   "summary": {
+    "mode": "vector",
     "questions": 20,
     "chunk_size": 1000,
     "chunk_overlap": 200,

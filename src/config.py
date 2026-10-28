@@ -6,6 +6,12 @@ CHUNK_OVERLAP = 200
 
 # Retrieval
 TOP_K = 3
+RETRIEVAL_MODE = "hybrid_rerank"  # "vector", "bm25", "hybrid" or "hybrid_rerank"
+CANDIDATES = 20            # results fetched from each retriever before fusion
+RRF_K = 60                 # standard RRF constant
+
+RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+RERANK_CANDIDATES = 10     # chunks passed to the reranker
 
 # LLM
 LLM_PROVIDER = "gemini"
