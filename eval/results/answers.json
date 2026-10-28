@@ -1,0 +1,81 @@
+{
+  "summary": {
+    "questions": 10,
+    "top_k": 3,
+    "model": "gemini-3.5-flash-lite",
+    "accuracy": 0.7,
+    "faithfulness": 1.0
+  },
+  "per_question": [
+    {
+      "id": "q01",
+      "answer": "The Transformer encoder is composed of a stack of $N = 6$ identical layers [2].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identifies that the Transformer encoder has 6 identical layers, which is supported by the context."
+    },
+    {
+      "id": "q02",
+      "answer": "On the WMT 2014 English-to-German translation task, the big Transformer model achieves a BLEU score of 28.4 [1, 2].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly provides the expected BLEU score of 28.4 and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q03",
+      "answer": "I couldn't find this in the document.",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified that the information is not in the document."
+    },
+    {
+      "id": "q04",
+      "answer": "In this work, the Transformer employs $h = 8$ parallel attention layers, or heads [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies that the Transformer uses 8 attention heads, which is supported by the context."
+    },
+    {
+      "id": "q05",
+      "answer": "I couldn't find this in the document.",
+      "correct": false,
+      "faithful": true,
+      "reason": "The system answer states it could not find the information, whereas the expected answer provides the specific dimensionality."
+    },
+    {
+      "id": "q06",
+      "answer": "I couldn't find this in the document.",
+      "correct": false,
+      "faithful": true,
+      "reason": "The system answer states it could not find the information, but the expected answer provides the optimizer details which are true."
+    },
+    {
+      "id": "q07",
+      "answer": "I couldn't find this in the document.",
+      "correct": false,
+      "faithful": true,
+      "reason": "The system answer says it could not find the information, but the hardware details are actually missing from the retrieved context."
+    },
+    {
+      "id": "q08",
+      "answer": "To counteract the effect of dot products growing large in magnitude for large values of $d_k$, which pushes the softmax function into regions where it has extremely small gradients [1].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately captures the expected explanation and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q09",
+      "answer": "During training, a label smoothing value of $\\epsilon_{ls} = 0.1$ was used [3].",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the label smoothing value as 0.1, which is directly supported by the retrieved context."
+    },
+    {
+      "id": "q10",
+      "answer": "I couldn't find this in the document.",
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified that the information is not present in the document."
+    }
+  ]
+}
