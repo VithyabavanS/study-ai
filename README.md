@@ -1,5 +1,7 @@
 # 📚 StudyAI – Intelligent PDF Analyser
 
+![CI](https://github.com/VithyabavanS/study-ai/actions/workflows/ci.yml/badge.svg)
+
 StudyAI is a web application for asking questions about your PDF documents. Upload a PDF, ask a question in plain language, and get an answer grounded in the document, with citations to the passages it used.
 
 It is built as a Retrieval-Augmented Generation (RAG) pipeline written from scratch (retrieve → build prompt → generate), and it is **evaluated**: retrieval and answer quality are measured on a hand-written test set (see [Evaluation](#-evaluation)).
