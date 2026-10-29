@@ -1,29 +1,36 @@
-"""Check that every evidence phrase appears in the extracted PDF text."""
+"""Check that every evidence phrase appears in the extracted PDF text.
+
+Usage: python eval/check_questions.py [questions_file]
+"""
 
 import json
 import re
+import sys
+import unicodedata
 from pathlib import Path
 
-from pypdf import PdfReader
+import pymupdf
 
 DOCS_DIR = Path("data/eval_docs")
-QUESTIONS_FILE = Path("eval/questions.jsonl")
+DEFAULT_QUESTIONS = Path("eval/questions.jsonl")
 
 
 def normalize(text):
-    """Lowercase and collapse all whitespace, so line breaks don't matter."""
+    """NFC-normalize, lowercase and collapse whitespace."""
+    text = unicodedata.normalize("NFC", text)
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
 def load_text(doc_name):
-    reader = PdfReader(DOCS_DIR / doc_name)
-    return normalize(" ".join(page.extract_text() or "" for page in reader.pages))
+    with pymupdf.open(DOCS_DIR / doc_name) as pdf:
+        return normalize(" ".join(page.get_text() for page in pdf))
 
 
 def main():
+    questions_file = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_QUESTIONS
     texts = {}
     problems = 0
-    for line in QUESTIONS_FILE.read_text(encoding="utf-8").splitlines():
+    for line in questions_file.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         q = json.loads(line)

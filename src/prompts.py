@@ -1,9 +1,11 @@
 """Prompt construction for the RAG pipeline."""
 
+from language import detect_language
+
 INSTRUCTIONS = """Answer the question using ONLY the context below.
 If the answer is not in the context, say: "I couldn't find this in the document."
 Cite the sources you used, like [1] or [2].
-Answer in the same language as the question."""
+Write your answer in {language}, even if the context is in a different language."""
 
 
 def build_prompt(question, chunks):
@@ -13,8 +15,9 @@ def build_prompt(question, chunks):
         numbered.append(f"[{number}] {chunk.page_content}")
 
     context = "\n\n".join(numbered)
+    instructions = INSTRUCTIONS.format(language=detect_language(question))
 
-    return f"""{INSTRUCTIONS}
+    return f"""{instructions}
 
 Context:
 {context}

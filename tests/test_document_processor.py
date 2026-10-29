@@ -2,6 +2,7 @@
 
 import pytest
 
+import document_processor
 from document_processor import DocumentProcessor
 from exceptions import DocumentProcessingError
 
@@ -31,3 +32,8 @@ def test_invalid_pdf_raises_document_processing_error():
     with pytest.raises(DocumentProcessingError):
         # processor.process_document()
         processor.process()
+
+def test_uses_pymupdf_loader_for_correct_tamil_extraction():
+    """pypdf corrupts Tamil vowel signs; the app must load PDFs with PyMuPDF."""
+    assert hasattr(document_processor, "PyMuPDFLoader")
+    assert not hasattr(document_processor, "PyPDFLoader")

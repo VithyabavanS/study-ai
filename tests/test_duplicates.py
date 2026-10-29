@@ -35,8 +35,8 @@ def test_processing_twice_does_not_duplicate_chunks():
         Document(page_content="Machine learning uses algorithms to learn from data"),
         Document(page_content="Neural networks are inspired by the human brain"),
     ]
-    VectorStore(use_openai=False).create_vectorstore(chunks)
-    second = VectorStore(use_openai=False)
+    VectorStore().create_vectorstore(chunks)
+    second = VectorStore()
     second.create_vectorstore(chunks)
 
     results = second.similarity_search("Tell me about AI", k=3)
