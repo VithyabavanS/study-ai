@@ -1,5 +1,5 @@
 {"id": "ta01", "doc": "photosynthesis_ta.pdf", "question": "தாவரங்களில் ஒளித்தொகுப்புக்கு பெரும்பாலும் உதவும் நிறமி எது?", "answer": "பச்சையம் (குளோரோபில்).", "evidence": "பச்சையம் என்ற நிறமி"}
-{"id": "ta02", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுதி II எந்த அலைநீள ஒளியை சிறப்பாக உறிஞ்சுகிறது?", "answer": "680 nm; அதனால் அது P680 என அழைக்கப்படுகிறது.", "evidence": "680 nm"}
+{"id": "ta02", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுதி II எந்த அலைநீள ஒளியை சிறப்பாக உறிஞ்சுகிறது?", "answer": "680 nm.", "evidence": "680 nm"}
 {"id": "en01", "doc": "photosynthesis_ta.pdf", "question": "Who observed that light intensity and temperature limit each other's effect on photosynthesis?", "answer": "Frederick Blackman.", "evidence": "ஃப்ரெடரிக் பிளாக்மான்"}
 {"id": "ta03", "doc": "photosynthesis_ta.pdf", "question": "ஒளித்தொகுப்பில் இலத்திரன்களை முக்கியமாக வழங்குவது எது?", "answer": "நீர்.", "evidence": "பிரதான இலத்திரன் வழங்கியாக நீர்"}
 {"id": "ta04", "doc": "photosynthesis_ta.pdf", "question": "ஒளிச்சேர்க்கையில் எலக்ட்ரான்களைக் கொடுப்பது எது?", "answer": "நீர் (இலத்திரன் வழங்கி).", "evidence": "பிரதான இலத்திரன் வழங்கியாக நீர்"}
