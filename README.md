@@ -16,6 +16,19 @@ It is built as a Retrieval-Augmented Generation (RAG) pipeline written from scra
 - 📌 Source passages shown with every answer
 - 🧪 Tested (pytest) and evaluated (retrieval metrics + LLM-as-judge)
 
+## ♿ Accessibility
+
+Built so students with different needs can use it comfortably:
+- **Reading settings:** text size (normal, large, extra large), night mode,
+  high contrast, and wider letter, word and line spacing (WCAG 1.4.12 values,
+  helpful for many readers with dyslexia)
+- **Listen to answer:** answers are read aloud in their own language, using a
+  Sri Lankan Tamil voice (`ta-LK-SaranyaNeural`) for Tamil
+- **Screen readers:** labelled inputs, Tamil text marked with `lang="ta"` so it is
+  pronounced correctly, and an announcement when a new answer appears
+- **Keyboard:** press Enter to ask; every control shows a clear focus outline
+- Glass panels turn solid when the system's "reduce transparency" setting is on
+
 ## 🧠 Architecture: Retrieval-Augmented Generation (RAG)
 
 ### Phase 1: Document indexing
@@ -185,6 +198,8 @@ PYTHONPATH=src:eval python eval/eval_answers.py [--questions eval/questions_ta.j
 - Answers are checked for language by script share; a mostly-Tamil answer with an
   English fragment, or a stray character from another script, can still pass (both seen once
   before the "not found" sentence was made language-specific).
+- Read-aloud uses `edge-tts`, an unofficial client for Microsoft Edge's online
+  voices: it needs internet access and could stop working if the service changes.
 
 ## 🧪 Development
 

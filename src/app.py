@@ -1,6 +1,6 @@
-# ============================================================================
-# IMPORTS
-# ============================================================================
+"""StudyAI: ask questions about a PDF in Tamil or English."""
+
+import html
 import os
 
 import streamlit as st
@@ -18,377 +18,241 @@ from config import (
 )
 from document_processor import DocumentProcessor
 from exceptions import StudyAIError
+from language import detect_language
 from retrieval import build_retriever
+from speech import RATES as SPEECH_RATES
+from speech import synthesize
 
-# ============================================================================
-# PAGE CONFIGURATION
-# ============================================================================
-st.set_page_config(
-    page_title="StudyAI",
-    page_icon="✨",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
-
-# ============================================================================
-# ULTRA MODERN CSS
-# ============================================================================
-st.markdown("""
-<style>
-    /* Import Modern Font */
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-    
-    /* Reset & Base */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    /* Dark Theme Background */
-    .stApp {
-        background: #0a0a0a;
-        color: #ffffff;
-    }
-    
-    .main {
-        background: #0a0a0a;
-        padding: 0;
-    }
-    
-    /* Hide Streamlit Elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Custom Header */
-    .custom-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-    
-    .logo {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    /* Main Container */
-    .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 3rem 2rem;
-    }
-    
-    /* Hero Section */
-    .hero {
-        text-align: center;
-        padding: 4rem 0;
-        margin-bottom: 3rem;
-    }
-    
-    .hero h1 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 4.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-        line-height: 1.2;
-    }
-    
-    .hero p {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.3rem;
-        color: #a0aec0;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    
-    /* Card System */
-    .card {
-        background: #1a1a1a;
-        border: 1px solid #2d2d2d;
-        border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        transition: all 0.3s ease;
-    }
-    
-    .card:hover {
-        border-color: #667eea;
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
-        transform: translateY(-2px);
-    }
-    
-    .card-title {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: white;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    /* Upload Area */
-    .upload-area {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border: 2px dashed #667eea;
-        border-radius: 16px;
-        padding: 3rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .upload-area:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-        border-color: #764ba2;
-    }
-    
-    /* Input Fields */
-    .stTextInput input {
-        background: #1a1a1a !important;
-        border: 1px solid #2d2d2d !important;
-        border-radius: 12px !important;
-        color: white !important;
-        padding: 1rem !important;
-        font-size: 1rem !important;
-        font-family: 'Inter', sans-serif !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .stTextInput input:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-    }
-    
-    .stTextInput input::placeholder {
-        color: #4a5568 !important;
-    }
-    
-    /* Buttons */
-    .stButton button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 1rem 2.5rem !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-        font-family: 'Inter', sans-serif !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
-    }
-    
-    .stButton button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5) !important;
-    }
-    
-    /* Answer Box */
-    .answer-container {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d1b3d 100%);
-        border: 1px solid #667eea;
-        border-radius: 16px;
-        padding: 2rem;
-        margin: 2rem 0;
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
-    }
-    
-    .answer-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #667eea;
-    }
-    
-    .answer-text {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #e2e8f0;
-    }
-    
-    /* Source Cards */
-    .source-item {
-        background: #1a1a1a;
-        border-left: 3px solid #667eea;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        transition: all 0.2s ease;
-    }
-    
-    .source-item:hover {
-        background: #252525;
-        transform: translateX(5px);
-    }
-    
-    /* Messages */
-    .stSuccess, .stInfo, .stWarning {
-        background: #1a1a1a !important;
-        border: 1px solid #2d2d2d !important;
-        border-radius: 12px !important;
-        padding: 1rem !important;
-        color: white !important;
-    }
-    
-    /* Chat Message */
-    .chat-bubble {
-        background: #1a1a1a;
-        border: 1px solid #2d2d2d;
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        transition: all 0.2s ease;
-    }
-    
-    .chat-bubble:hover {
-        border-color: #667eea;
-        background: #1f1f1f;
-    }
-    
-    .question-text {
-        color: #667eea;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem;
-    }
-    
-    .answer-preview {
-        color: #a0aec0;
-        font-size: 0.95rem;
-        line-height: 1.6;
-    }
-    
-    /* Stats */
-    .stat-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        color: white;
-    }
-    
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        font-family: 'Space Grotesk', sans-serif;
-    }
-    
-    .stat-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-top: 0.5rem;
-    }
-    
-    /* File Uploader Custom */
-    [data-testid="stFileUploader"] {
-        background: transparent;
-    }
-    
-    [data-testid="stFileUploader"] section {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border: 2px dashed #667eea;
-        border-radius: 16px;
-        padding: 2rem;
-    }
-    
-    [data-testid="stFileUploader"] section:hover {
-        border-color: #764ba2;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-    }
-    
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: #1a1a1a !important;
-        border: 1px solid #2d2d2d !important;
-        border-radius: 12px !important;
-        color: white !important;
-        font-weight: 500 !important;
-    }
-    
-    .streamlit-expanderHeader:hover {
-        border-color: #667eea !important;
-    }
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: #1a1a1a;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: #667eea;
-        border-radius: 4px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: #764ba2;
-    }
-    
-    /* Loading Spinner */
-    .stSpinner > div {
-        border-top-color: #667eea !important;
-    }
-    
-    /* Badge */
-    .badge {
-        display: inline-block;
-        background: rgba(102, 126, 234, 0.2);
-        color: #667eea;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-left: 0.5rem;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-
-# ============================================================================
-# LOAD ENVIRONMENT VARIABLES
-# ============================================================================
 load_dotenv()
 
+st.set_page_config(page_title="StudyAI", page_icon="📖", layout="wide")
 
-# ============================================================================
-# INITIALIZE SESSION STATE
-# ============================================================================
-if 'processed_chunks' not in st.session_state:
-    st.session_state.processed_chunks = None
-if 'current_file' not in st.session_state:
-    st.session_state.current_file = None
-if 'vectorstore' not in st.session_state:
-    st.session_state.vectorstore = None
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
+FONTS = (
+    "https://fonts.googleapis.com/css2?"
+    "family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400"
+    "&family=Literata:opsz,wght@7..72,400;7..72,600"
+    "&family=Noto+Sans+Tamil:wght@400;600"
+    "&family=Noto+Serif+Tamil:wght@400;600&display=swap"
+)
+
+TEXT_SIZES = {"Normal": 16, "Large": 19, "Extra large": 22}  # base font size in px
+
+# Design: a study desk under frosted glass. The page background is soft, blurred ink
+# blue, highlighter yellow and margin red; the panels are frosted glass on top. The
+# answer itself stays solid paper (an exercise-book page with a red margin line),
+# because reading must never happen on a see-through surface.
+BASE_CSS = """
+@import url('{fonts}');
+
+:root {{
+  --paper: #EEF2F7;
+  --sheet: #FFFFFF;
+  --ink: #1B2A41;
+  --ink-soft: #46566F;
+  --pen: #2546A8;
+  --rule: #C9D6E6;
+  --margin: #C8433A;
+  --highlight: #FFE27A;
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  --glass-shadow: 0 10px 40px rgba(27, 42, 65, 0.10);
+  --ui: 'Atkinson Hyperlegible', 'Noto Sans Tamil', system-ui, sans-serif;
+  --read: 'Literata', 'Noto Serif Tamil', Georgia, serif;
+}}
+
+html {{ font-size: {base_px}px; }}
+
+.stApp {{
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 12%, rgba(37, 70, 168, 0.20), transparent 38%),
+    radial-gradient(circle at 92% 6%, rgba(255, 226, 122, 0.45), transparent 34%),
+    radial-gradient(circle at 80% 92%, rgba(200, 67, 58, 0.12), transparent 40%),
+    var(--paper);
+  background-attachment: fixed;
+}}
+.stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea,
+.stApp button, .stApp h1, .stApp h2, .stApp h3 {{ font-family: var(--ui); }}
+.stApp p, .stApp li {{ font-size: 1.05rem; line-height: 1.7; }}
+.stApp input {{ font-size: 1.05rem; }}
+
+header[data-testid="stHeader"] {{ background: transparent; }}
+.block-container {{ max-width: 1180px; padding-top: 2rem; padding-bottom: 4rem; }}
+
+.stApp :focus-visible {{ outline: 3px solid var(--pen) !important; outline-offset: 2px; }}
+.sr-only {{
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}}
+
+/* Frosted glass panels */
+.st-key-masthead, .st-key-panel_doc, .st-key-panel_ask {{
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid var(--glass-edge);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 1.5rem 1.75rem;
+}}
+.st-key-masthead {{ margin-bottom: 1.5rem; }}
+.stApp .brand {{
+  font-size: 2.1rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2;
+  margin: 0 0 .35rem;
+}}
+.stApp .lede {{ color: var(--ink-soft); margin: 0; max-width: 62ch; }}
+.stApp .mode {{ color: var(--ink-soft); font-size: .9rem; margin: .75rem 0 0; }}
+
+.stApp h2 {{ font-size: 1.15rem; font-weight: 700; margin: 0 0 .5rem; padding: 0; }}
+.stApp .status {{ color: var(--ink-soft); font-size: .95rem; }}
+
+[data-testid="stTextInputRootElement"] {{ border-radius: 10px; }}
+
+/* The answer: solid paper resting on the glass */
+.st-key-answer {{
+  background:
+    linear-gradient(to right, transparent 3.25rem, var(--margin) 3.25rem,
+                    var(--margin) calc(3.25rem + 2px), transparent calc(3.25rem + 2px)),
+    var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(27, 42, 65, 0.06), 0 12px 28px rgba(27, 42, 65, 0.10);
+  padding: 1.5rem 2rem 1.25rem 4.5rem;
+  margin-top: 1rem;
+}}
+.st-key-answer .asked {{ color: var(--ink-soft); font-weight: 700; margin: 0 0 .5rem; }}
+.st-key-answer [data-testid="stMarkdownContainer"] p,
+.st-key-answer [data-testid="stMarkdownContainer"] li {{
+  font-family: var(--read); font-size: 1.15rem; line-height: 1.8;
+}}
+.st-key-answer [data-testid="stMarkdownContainer"] .sources-title {{
+  font-family: var(--ui); font-size: 1rem; color: var(--ink-soft); font-weight: 700;
+  margin: 1.25rem 0 .5rem; padding-top: 1rem; border-top: 1px solid var(--rule);
+}}
+.st-key-answer [data-testid="stMarkdownContainer"] ol.sources {{
+  list-style: none; padding: 0; margin: 0 0 0 -3.9rem;
+}}
+.st-key-answer [data-testid="stMarkdownContainer"] ol.sources li {{
+  display: grid; grid-template-columns: 1.6rem 1fr; column-gap: 2.3rem;
+  margin: 0 0 1rem; padding: 0; font-family: var(--ui); font-size: 1rem;
+}}
+.sources .mark {{
+  background: var(--highlight); color: var(--ink); font-weight: 700; text-align: center;
+  height: 1.6rem; line-height: 1.6rem; border-radius: 2px; font-size: .95rem;
+}}
+.st-key-answer [data-testid="stMarkdownContainer"] .sources p {{
+  margin: 0; font-family: var(--ui); color: var(--ink-soft); font-size: 1rem;
+  line-height: 1.7;
+}}
+.sources .where {{ color: var(--ink-soft); font-size: .85rem; }}
+.st-key-answer button [data-testid="stMarkdownContainer"] p {{
+  font-family: var(--ui); font-size: 1rem; line-height: 1.4;
+}}
+
+/* People who ask their system for less transparency get solid panels */
+@media (prefers-reduced-transparency: reduce) {{
+  .st-key-masthead, .st-key-panel_doc, .st-key-panel_ask {{
+    background: var(--sheet); -webkit-backdrop-filter: none; backdrop-filter: none;
+  }}
+}}
+
+@media (max-width: 640px) {{
+  .block-container {{ padding-left: .75rem; padding-right: .75rem; }}
+  .st-key-masthead, .st-key-panel_doc, .st-key-panel_ask {{ padding: 1.1rem 1rem; }}
+  .st-key-answer {{
+    padding: 1.25rem 1rem 1rem 3.25rem;
+    background:
+      linear-gradient(to right, transparent 2.25rem, var(--margin) 2.25rem,
+                      var(--margin) calc(2.25rem + 2px), transparent calc(2.25rem + 2px)),
+      var(--sheet);
+  }}
+  .st-key-answer [data-testid="stMarkdownContainer"] ol.sources {{ margin-left: -2.9rem; }}
+  .st-key-answer [data-testid="stMarkdownContainer"] ol.sources li {{ column-gap: 1.3rem; }}
+}}
+"""
+
+# WCAG 1.4.12 text spacing: helps many readers with dyslexia or low vision
+SPACING_CSS = """
+.stApp p, .stApp li, .stApp label, .stApp input {
+  letter-spacing: 0.06em; word-spacing: 0.16em;
+}
+.stApp p, .stApp li { line-height: 2 !important; margin-bottom: 1em; }
+"""
+
+# Night mode: deep ink-blue desk, the answer page turns to dark paper
+NIGHT_CSS = """
+:root {
+  --paper: #10192B; --sheet: #1B263B; --ink: #E7EDF6; --ink-soft: #AAB7CB;
+  --pen: #93AAFF; --rule: #34435F; --margin: #E0675D; --highlight: #F2D35C;
+  --glass: rgba(27, 38, 59, 0.55); --glass-edge: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+.stApp {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(80, 110, 220, 0.28), transparent 40%),
+    radial-gradient(circle at 92% 6%, rgba(242, 211, 92, 0.10), transparent 34%),
+    radial-gradient(circle at 80% 92%, rgba(224, 103, 93, 0.14), transparent 40%),
+    var(--paper) !important;
+}
+.st-key-masthead, .st-key-panel_doc, .st-key-panel_ask {
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+.stApp p, .stApp li, .stApp label, .stApp h2, .stApp span, .stApp small,
+[data-testid="stMarkdownContainer"] { color: var(--ink); }
+.stApp .lede, .stApp .mode, .stApp .status, .st-key-answer .asked { color: var(--ink-soft); }
+.sources .mark { color: #1B2A41 !important; }
+.st-key-answer { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important; }
+[data-testid="stTextInputRootElement"] { background: var(--sheet); border-color: var(--rule); }
+[data-testid="stTextInputRootElement"] input { background: transparent; color: var(--ink); }
+[data-testid="stTextInputRootElement"] input::placeholder { color: var(--ink-soft); }
+[data-testid="stFileUploaderDropzone"], [data-testid="stFileUploaderFile"],
+[data-testid="stPopoverBody"], [data-testid="stExpander"] details {
+  background: var(--sheet) !important; color: var(--ink) !important;
+  border-color: var(--rule) !important;
+}
+[data-testid^="stBaseButton-secondary"], button[data-variant="segmented_control"] {
+  background: var(--sheet) !important; border-color: var(--rule) !important;
+}
+[data-testid^="stBaseButton-secondary"] *, button[data-variant="segmented_control"] * {
+  color: var(--ink) !important;
+}
+button[data-variant="segmented_control"][data-selected="true"] {
+  background: var(--pen) !important; border-color: var(--pen) !important;
+}
+button[data-variant="segmented_control"][data-selected="true"] *,
+[data-testid^="stBaseButton-primary"] * { color: #10192B !important; }
+[data-testid^="stBaseButton-primary"] { background: var(--pen) !important; }
+[data-testid="stCheckbox"] label > div:first-of-type { background: #5A6B8A !important; }
+[data-testid="stCheckbox"] label:has(input:checked) > div:first-of-type {
+  background: var(--pen) !important;
+}
+"""
+
+# Solid black on white, no glass, strong borders and underlined focus
+CONTRAST_CSS = """
+:root {
+  --paper: #FFFFFF; --sheet: #FFFFFF; --ink: #000000; --ink-soft: #000000;
+  --pen: #0033CC; --rule: #000000; --highlight: #FFD400;
+  --glass: #FFFFFF; --glass-edge: #000000; --glass-shadow: none;
+}
+.stApp { background: #FFFFFF !important; }
+.st-key-masthead, .st-key-panel_doc, .st-key-panel_ask, .st-key-answer {
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  border-width: 2px !important; box-shadow: none !important;
+}
+[data-testid="stTextInputRootElement"] { border: 2px solid #000000 !important; }
+[data-testid^="stBaseButton-primary"] {
+  background: #000000 !important; border-color: #000000 !important; color: #FFFFFF !important;
+}
+.stApp :focus-visible { outline: 4px solid #0033CC !important; outline-offset: 3px; }
+"""
+
+LEDE_EN = (
+    "Ask questions about your PDF in Tamil or English. "
+    "Answers come only from the document, with the passages they came from."
+)
+LEDE_TA = "உங்கள் PDF பற்றித் தமிழிலோ ஆங்கிலத்திலோ கேள்வி கேளுங்கள்."
+PLACEHOLDER = "e.g. Why is attention scaled by √dk?  or  ஒளித்தொகுப்பு எங்கே நடைபெறுகிறது?"
 
 
 @st.cache_resource
@@ -399,159 +263,213 @@ def load_reranker():
     return CrossEncoder(RERANKER_MODEL, device=EMBEDDING_DEVICE)
 
 
-# ============================================================================
-# MAIN APPLICATION
-# ============================================================================
-def main():
-    """Ultra modern UI"""
-    
-    # Custom Header
-    st.markdown("""
-        <div class='custom-header'>
-            <div class='logo'>✨ StudyAI</div>
-            <div style='color: rgba(255,255,255,0.7); font-size: 0.9rem;'>
-                Your intelligent study companion
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Hero Section
-    st.markdown("""
-        <div class='hero'>
-            <h1>Learn Smarter,<br>Not Harder</h1>
-            <p>Upload any document and get instant, intelligent answers powered by AI</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Main Container
-    col1, col2 = st.columns([1.2, 1], gap="large")
-    
-    with col1:
-        # Upload Section
-        st.markdown("<div class='card-title'>📄 Upload Your Document</div>", unsafe_allow_html=True)
-        
-        uploaded_file = st.file_uploader(
-            "Upload",
-            type=["pdf"],
-            label_visibility="collapsed"
+def lang_attr(text):
+    """HTML lang code, so screen readers pronounce Tamil text correctly."""
+    return "ta" if detect_language(text) == "Tamil" else "en"
+
+
+def init_state():
+    defaults = {
+        "file_id": None, "file_name": None, "passages": 0, "retriever": None, "history": [],
+    }
+    for key, value in defaults.items():
+        st.session_state.setdefault(key, value)
+
+
+def setting(key, default):
+    """Current value of a reading setting (widgets live in the settings popover)."""
+    value = st.session_state.get(key)
+    return default if value is None else value
+
+
+def apply_styles():
+    """Build the page CSS from the reader's settings."""
+    css = BASE_CSS.format(fonts=FONTS, base_px=TEXT_SIZES[setting("text_size", "Normal")])
+    if setting("wide_spacing", False):
+        css += SPACING_CSS
+    if setting("night_mode", False):
+        css += NIGHT_CSS
+    if setting("high_contrast", False):  # wins over night mode
+        css += CONTRAST_CSS
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+
+def reading_settings():
+    with st.popover("Reading settings", icon=":material/text_fields:", width="stretch"):
+        st.segmented_control(
+            "Text size", list(TEXT_SIZES), default="Normal", key="text_size", required=True
         )
-        
-        if uploaded_file:
-            st.success(f"✓ {uploaded_file.name} ({uploaded_file.size / 1024:.1f} KB)")
-            
-            if st.session_state.current_file != uploaded_file.name:
-                st.session_state.processed_chunks = None
-                st.session_state.vectorstore = None
-                st.session_state.current_file = uploaded_file.name
-                st.session_state.chat_history = []
-            
-            if st.button("⚡ Process Document", use_container_width=True):
-                with st.spinner("Processing..."):
-                    try:
-                        processor = DocumentProcessor(uploaded_file, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-                        chunks = processor.process()
-                        st.session_state.processed_chunks = chunks
-                        
-                        # Get API key from sidebar if exists
-                        reranker = load_reranker() if RETRIEVAL_MODE == "hybrid_rerank" else None
-                        st.session_state.vectorstore = build_retriever(
-                            chunks, RETRIEVAL_MODE, reranker_model=reranker
-                        )
-                        
-                        st.success(f"✨ Ready! {len(chunks)} chunks created")
-                    except StudyAIError as e:
-                        st.error(f"Error: {e!s}")
-        
-        # Stats if processed
-        if st.session_state.processed_chunks:
-            st.markdown("---")
-            cols = st.columns(2)
-            with cols[0]:
-                st.markdown(f"""
-                    <div class='stat-box'>
-                        <div class='stat-value'>{len(st.session_state.processed_chunks)}</div>
-                        <div class='stat-label'>Chunks</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            with cols[1]:
-                st.markdown(f"""
-                    <div class='stat-box'>
-                        <div class='stat-value'>{len(st.session_state.chat_history)}</div>
-                        <div class='stat-label'>Questions</div>
-                    </div>
-                """, unsafe_allow_html=True)
-    
-    with col2:
-        # Question Section
-        st.markdown("<div class='card-title'>💬 Ask Anything</div>", unsafe_allow_html=True)
-        
-        question = st.text_input(
-            "Question",
-            placeholder="What would you like to know?",
-            label_visibility="collapsed"
+        st.toggle("Night mode", key="night_mode", help="Light text on a dark background.")
+        st.toggle("High contrast", key="high_contrast",
+                  help="Black text on white, with no see-through panels.")
+        st.toggle("Wider spacing", key="wide_spacing",
+                  help="More space between letters, words and lines. "
+                       "Helps many readers with dyslexia.")
+        st.segmented_control(
+            "Read-aloud speed", list(SPEECH_RATES), default="Normal", key="speech_rate",
+            required=True,
         )
-        
-        if st.button("🔍 Get Answer", use_container_width=True, type="primary"):
-            if not st.session_state.vectorstore:
-                st.warning("⚠️ Please upload and process a document first")
-            elif not question:
-                st.warning("⚠️ Please enter a question")
+
+
+def render_masthead():
+    if os.getenv("GEMINI_API_KEY"):
+        mode = f"Answers written by {LLM_MODEL}. Retrieval: {RETRIEVAL_MODE.replace('_', ' + ')}."
+    else:
+        mode = ("Free mode: answers are key sentences from the document. "
+                "Add GEMINI_API_KEY to .env for written answers.")
+    with st.container(key="masthead"):
+        text, settings = st.columns([2.2, 1], vertical_alignment="top")
+        with text:
+            st.markdown(
+                f"""<p class="brand">StudyAI</p>
+                    <p class="lede">{LEDE_EN}</p>
+                    <p class="lede" lang="ta">{LEDE_TA}</p>
+                    <p class="mode">{html.escape(mode)}</p>""",
+                unsafe_allow_html=True,
+            )
+        with settings:
+            reading_settings()
+
+
+def process_upload(uploaded):
+    """Read a newly uploaded PDF once and build its retriever."""
+    file_id = f"{uploaded.name}:{uploaded.size}"
+    if st.session_state.file_id == file_id:
+        return
+    with st.spinner("Reading the PDF…"):
+        try:
+            chunks = DocumentProcessor(
+                uploaded, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+            ).process()
+            reranker = load_reranker() if RETRIEVAL_MODE == "hybrid_rerank" else None
+            retriever = build_retriever(chunks, RETRIEVAL_MODE, reranker_model=reranker)
+        except StudyAIError as e:
+            st.session_state.update(file_id=None, retriever=None)
+            st.error(f"Couldn't read this PDF: {e}")
+            return
+    st.session_state.update(
+        file_id=file_id, file_name=uploaded.name, passages=len(chunks),
+        retriever=retriever, history=[],
+    )
+
+
+@st.cache_data(show_spinner=False, max_entries=50)
+def answer_audio(answer, speed):
+    """MP3 of the answer read aloud; cached so replaying costs nothing."""
+    return synthesize(answer, speed)
+
+
+def read_aloud(entry):
+    """Listen button: makes an MP3 on the server and plays it with a normal audio player."""
+    speed = setting("speech_rate", "Normal")
+    just_made = False
+    if st.button("Listen to answer", icon=":material/volume_up:", key="listen"):
+        with st.spinner("Preparing audio…"):
+            try:
+                entry["audio"] = answer_audio(entry["answer"], speed)
+                just_made = True
+            except StudyAIError as e:
+                st.error(f"Couldn't read the answer aloud: {e}")
+    if entry.get("audio"):
+        st.audio(entry["audio"], format="audio/mpeg", autoplay=just_made,
+                 alt="The answer, read aloud")
+
+
+def render_sources(sources):
+    items = []
+    for number, doc in enumerate(sources, start=1):
+        text = " ".join(doc.page_content.split())
+        excerpt = text if len(text) <= 320 else text[:320].rsplit(" ", 1)[0] + " …"
+        page = doc.metadata.get("page")
+        where = f'<span class="where">Page {page + 1}</span>' if isinstance(page, int) else ""
+        items.append(
+            f'<li><span class="mark" aria-label="Source {number}">{number}</span>'
+            f'<div><p lang="{lang_attr(text)}">{html.escape(excerpt)}</p>{where}</div></li>'
+        )
+    st.markdown(
+        '<p class="sources-title">Sources</p>'
+        f'<ol class="sources">{"".join(items)}</ol>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_answer(entry):
+    with st.container(key="answer"):
+        st.markdown(
+            '<p class="sr-only" role="status">Answer ready.</p>'
+            f'<p class="asked" lang="{lang_attr(entry["question"])}">'
+            f'{html.escape(entry["question"])}</p>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(entry["answer"])  # Markdown keeps lists and formulas readable
+        read_aloud(entry)
+        if entry["sources"]:
+            render_sources(entry["sources"])
+
+
+def document_panel():
+    with st.container(key="panel_doc"):
+        st.markdown("## Your document")
+        uploaded = st.file_uploader("Choose a PDF", type=["pdf"])
+        if uploaded is None:
+            st.session_state.update(file_id=None, retriever=None, history=[])
+            st.markdown('<p class="status">No document yet.</p>', unsafe_allow_html=True)
+            return
+        process_upload(uploaded)
+        if st.session_state.retriever is not None:
+            st.markdown(
+                f'<p class="status">Ready: {st.session_state.passages} passages from '
+                f"{html.escape(st.session_state.file_name)}.</p>",
+                unsafe_allow_html=True,
+            )
+
+
+def question_panel():
+    with st.container(key="panel_ask"):
+        st.markdown("## Your question")
+        with st.form("ask", clear_on_submit=False, border=False):
+            question = st.text_input("Ask in Tamil or English", placeholder=PLACEHOLDER)
+            asked = st.form_submit_button("Ask", type="primary")
+
+        if asked:
+            if st.session_state.retriever is None:
+                st.warning("Upload a PDF first, then ask your question.")
+            elif not question.strip():
+                st.warning("Type a question, then select Ask.")
             else:
-                with st.spinner("Thinking..."):
+                with st.spinner("Finding the answer in your document…"):
                     try:
-                        chat_engine = ChatEngine(vectorstore=st.session_state.vectorstore)
-                        
-                        result = chat_engine.get_answer(question, k=TOP_K)
-                        
-                        # Display answer
-                        st.markdown("""
-                            <div class='answer-container'>
-                                <div class='answer-header'>✨ Answer</div>
-                                <div class='answer-text'>
-                        """ + result['answer'].replace('\n', '<br>') + """
-                                </div>
-                            </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Sources
-                        if result["sources"]:
-                            with st.expander("📚 View Sources"):
-                                for i, doc in enumerate(result["sources"], 1):
-                                    st.markdown(f"""
-                                        <div class='source-item'>
-                                            <strong>Source {i}</strong><br>
-                                            {doc.page_content[:200]}...
-                                        </div>
-                                    """, unsafe_allow_html=True)
-                        
-                        st.session_state.chat_history.append({
-                            "question": question,
-                            "answer": result["answer"]
-                        })
+                        result = ChatEngine(st.session_state.retriever).get_answer(
+                            question, k=TOP_K
+                        )
                     except StudyAIError as e:
-                        st.error(f"Error: {e!s}")
-    
-    # Chat History
-    if st.session_state.chat_history:
-        st.markdown("---")
-        st.markdown("<div class='card-title'>💭 Recent Questions</div>", unsafe_allow_html=True)
-        
-        for chat in reversed(st.session_state.chat_history[-3:]):
-            st.markdown(f"""
-                <div class='chat-bubble'>
-                    <div class='question-text'>Q: {chat['question']}</div>
-                    <div class='answer-preview'>{chat['answer'][:150]}...</div>
-                </div>
-            """, unsafe_allow_html=True)
-    
-    # Sidebar for settings
-    with st.sidebar:
-        st.markdown("### ⚙️ Settings")
-        if os.getenv("GEMINI_API_KEY"):
-            st.success(f"🤖 AI Mode: {LLM_MODEL}")
-        else:
-            st.info("🆓 Free Mode. Add GEMINI_API_KEY to .env for AI answers.")
-        st.caption(f"Retrieval: {RETRIEVAL_MODE}")
+                        st.error(f"Couldn't get an answer: {e}")
+                        return
+                st.session_state.history.append(
+                    {"question": question, "answer": result["answer"],
+                     "sources": result["sources"]}
+                )
+
+        history = st.session_state.history
+        if not history:
+            return
+        render_answer(history[-1])
+        if len(history) > 1:
+            with st.expander(f"Earlier questions ({len(history) - 1})"):
+                for entry in reversed(history[:-1]):
+                    st.markdown(f"**{entry['question']}**")
+                    st.markdown(entry["answer"])
+
+
+def main():
+    init_state()
+    apply_styles()
+    render_masthead()
+    left, right = st.columns([1, 2], gap="large")
+    with left:
+        document_panel()
+    with right:
+        question_panel()
 
 
 if __name__ == "__main__":

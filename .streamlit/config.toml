@@ -1,5 +1,12 @@
 [server]
 fileWatcherType = "none"
 
-[logger]
-level = "error"
+[theme]
+base = "light"
+primaryColor = "#2546A8"
+backgroundColor = "#EEF2F7"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1B2A41"
+
+[client]
+toolbarMode = "viewer"

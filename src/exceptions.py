@@ -12,3 +12,6 @@ class VectorStoreError(StudyAIError):
 
 class LLMError(StudyAIError):
     """Raised when the language model request fails."""
+
+class SpeechError(StudyAIError):
+    """Raised when the answer can't be read aloud."""
