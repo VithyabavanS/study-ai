@@ -1,0 +1,216 @@
+{
+  "summary": {
+    "questions_file": "eval\\questions.jsonl",
+    "questions": 25,
+    "retrieval_mode": "hybrid_rerank",
+    "top_k": 3,
+    "model": "gemini-3.5-flash-lite",
+    "accuracy": 0.92,
+    "faithfulness": 1.0,
+    "language_match": 1.0,
+    "embedding_model": "e5-small",
+    "reranker_model": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+  },
+  "per_question": [
+    {
+      "id": "q01",
+      "answer": "The Transformer encoder is composed of a stack of $N = 6$ identical layers [2].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identifies that the Transformer encoder has 6 identical layers, which is supported by the context."
+    },
+    {
+      "id": "q02",
+      "answer": "The big Transformer model achieves a BLEU score of 28.4 on the WMT 2014 English-to-German translation task [1, 2, 3].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly states the BLEU score of 28.4 as given in the expected answer and supported by the context."
+    },
+    {
+      "id": "q03",
+      "answer": "I couldn't find this in the document.",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly stated that the information was not found in the document, matching the expected answer."
+    },
+    {
+      "id": "q04",
+      "answer": "Based on the provided context, the work employs $h = 8$ parallel attention layers, or heads [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identifies that the model employs h = 8 attention heads, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q05",
+      "answer": "The inner-layer dimensionality of the position-wise feed-forward network is $d_{ff} = 2048$ [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the inner-layer dimensionality as 2048, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q06",
+      "answer": "I couldn't find this in the document.",
+      "language_ok": true,
+      "correct": false,
+      "faithful": true,
+      "reason": "The system answer claims it could not find the information, but the expected answer provides a specific optimizer."
+    },
+    {
+      "id": "q07",
+      "answer": "The models were trained on one machine with 8 NVIDIA P100 GPUs [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately matches the expected answer and is directly supported by the retrieved context."
+    },
+    {
+      "id": "q08",
+      "answer": "Based on the provided document, the dot products are scaled by $\\frac{1}{\\sqrt{d_k}}$ because for large values of $d_k$, the dot products grow large in magnitude, which pushes the softmax function into regions with extremely small gradients [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly matches the expected answer and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q09",
+      "answer": "During training, a label smoothing value of $\\epsilon_{ls} = 0.1$ was used [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified the label smoothing value as 0.1, which is supported by the context."
+    },
+    {
+      "id": "q10",
+      "answer": "I couldn't find this in the document.",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identified that the cost in US dollars is not present in the document."
+    },
+    {
+      "id": "q11",
+      "answer": "Based on the provided context, a ReLU activation function is used in the position-wise feed-forward network [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identifies the ReLU activation function as stated in the expected answer and supported by the retrieved context."
+    },
+    {
+      "id": "q12",
+      "answer": "Based on the provided context, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension $d_{model} = 512$ [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the output dimension as 512, which matches the expected answer and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q13",
+      "answer": "Based on the provided context, the Transformer uses sinusoidal positional encoding [1]. Additionally, in row (E) of the architecture variations, this is replaced with learned positional embeddings [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly identifies the sinusoidal positional encoding and mentions the learned embeddings variation based on the context."
+    },
+    {
+      "id": "q14",
+      "answer": "Based on the provided document, the authors chose the sinusoidal version because they hypothesized it would allow the model to easily learn to attend by relative positions, and because it may allow the model to extrapolate to sequence lengths longer than the ones encountered during training [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately reflects both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q15",
+      "answer": "The WMT 2014 English-German training dataset consists of about 4.5 million sentence pairs [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly matches the expected answer and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q16",
+      "answer": "The base models were trained for a total of 100,000 steps or 12 hours [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer accurately states the training time for the base models as 100,000 steps or 12 hours, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q17",
+      "answer": "For the base model, a dropout rate of $P_{drop} = 0.1$ was used [2].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the dropout rate as 0.1, which matches the expected answer and is fully supported by the context."
+    },
+    {
+      "id": "q18",
+      "answer": "A beam size of 4 was used for decoding [2].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies a beam size of 4, which matches the expected answer and is supported by the context."
+    },
+    {
+      "id": "q19",
+      "answer": "The learning rate schedule uses 4000 warmup steps [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly identifies the number of warmup steps as 4000, which matches both the expected answer and the retrieved context."
+    },
+    {
+      "id": "q20",
+      "answer": "Self-attention layers are faster than recurrent layers when the sequence length $n$ is smaller than the representation dimensionality $d$ [1, 2].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly matches the expected answer and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q21",
+      "answer": "Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions [1].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer matches the expected answer and is directly supported by the retrieved context."
+    },
+    {
+      "id": "q22",
+      "answer": "To prevent positions in the decoder from attending to subsequent (later) positions, the self-attention sub-layer in the decoder stack is modified using masking combined with the fact that output embeddings are offset by one position [1, 3]. Specifically, this is implemented inside the scaled dot-product attention by masking out (setting to $-\\infty$) all values in the input of the softmax that correspond to illegal connections [2].",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system answer correctly matches the expected answer and is fully supported by the retrieved context."
+    },
+    {
+      "id": "q23",
+      "answer": "I couldn't find this in the document.",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly stated it could not find the answer, which matches the expected answer and is faithful to the context."
+    },
+    {
+      "id": "q24",
+      "answer": "Based on the provided document, each training batch did not contain a specific number of sentences, but rather contained a set of sentence pairs containing approximately 25,000 source tokens and 25,000 target tokens [1].",
+      "language_ok": true,
+      "correct": false,
+      "faithful": true,
+      "reason": "The expected answer states that the information is not in the document (since batch size is only given in tokens), but the system incorrectly provided the token-based batch size as an answer."
+    },
+    {
+      "id": "q25",
+      "answer": "I couldn't find this in the document.",
+      "language_ok": true,
+      "correct": true,
+      "faithful": true,
+      "reason": "The system correctly stated it could not find the answer, which matches the expected answer and is faithful to the context."
+    }
+  ]
+}

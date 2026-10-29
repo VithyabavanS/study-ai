@@ -18,11 +18,13 @@ from google import genai
 from google.genai import types
 
 from chat_engine import ChatEngine
-from config import LLM_MODEL, RETRIEVAL_MODE, TOP_K
+from config import EMBEDDING_MODEL, LLM_MODEL, RERANKER_MODEL, RETRIEVAL_MODE, TOP_K
+from language import detect_language
 
 load_dotenv()
 
 PAUSE_SECONDS = 7  # stay under free-tier requests-per-minute limits
+
 
 JUDGE_PROMPT = """You are grading a question-answering system.
 
@@ -33,13 +35,16 @@ Retrieved context:
 {context}
 
 Grade two things:
-- correct: does the system answer agree with the expected answer? If the expected
-  answer says the information is not in the document, the system is correct only
-  if it says it could not find the answer.
+- correct: does the system answer agree with the EXPECTED answer?
+  - If the expected answer says the information is not in the document, the system
+    is correct only if it says it could not find the answer.
+  - If the expected answer gives information, but the system says it could not find
+    the answer, correct is false, even if the retrieved context lacks the information.
+    Judge correctness against the expected answer, not against the context.
 - faithful: is every claim in the system answer supported by the retrieved context?
   An answer saying it could not find the information counts as faithful.
 
-Reply with JSON only:
+Write the reason in English. Reply with a single JSON object, not a list:
 {{"correct": true or false, "faithful": true or false, "reason": "one short sentence"}}"""
 
 
@@ -56,15 +61,22 @@ def judge(client, question, expected, answer, sources):
             temperature=0, response_mime_type="application/json"
         ),
     )
-    return json.loads(response.text)
+    grade = json.loads(response.text)
+    if isinstance(grade, list) and grade:  # the model sometimes wraps the object in a list
+        grade = grade[0]
+    if not isinstance(grade, dict) or not {"correct", "faithful"} <= grade.keys():
+        raise ValueError(f"Unexpected judge output: {response.text!r}")
+    return grade
 
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate answer quality.")
     parser.add_argument("--questions", type=Path, default=DEFAULT_QUESTIONS)
+    parser.add_argument("--tag", default="", help="extra label for the results file name")
     args = parser.parse_args()
+    tag = f"_{args.tag}" if args.tag else ""
     results_file = Path(
-        f"eval/results/answers_{RETRIEVAL_MODE}{results_suffix(args.questions)}.json"
+        f"eval/results/answers_{RETRIEVAL_MODE}{results_suffix(args.questions)}{tag}.json"
     )
 
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
@@ -80,8 +92,12 @@ def main():
         grade = judge(client, q["question"], q["answer"], result["answer"], result["sources"])
         time.sleep(PAUSE_SECONDS)
 
-        rows.append({"id": q["id"], "answer": result["answer"], **grade})
-        print(f"{q['id']}: correct={grade['correct']} faithful={grade['faithful']} | {grade['reason']}")
+        language_ok = detect_language(result["answer"]) == detect_language(q["question"])
+        rows.append({"id": q["id"], "answer": result["answer"], "language_ok": language_ok, **grade})
+        print(
+            f"{q['id']}: correct={grade['correct']} faithful={grade['faithful']} "
+            f"language_ok={language_ok} | {grade['reason']}"
+        )
 
     n = len(rows)
     summary = {
@@ -92,6 +108,9 @@ def main():
         "model": LLM_MODEL,
         "accuracy": round(sum(r["correct"] for r in rows) / n, 3),
         "faithfulness": round(sum(r["faithful"] for r in rows) / n, 3),
+        "language_match": round(sum(r["language_ok"] for r in rows) / n, 3),
+        "embedding_model": EMBEDDING_MODEL,
+        "reranker_model": RERANKER_MODEL,
     }
     print(json.dumps(summary, indent=2))
 
