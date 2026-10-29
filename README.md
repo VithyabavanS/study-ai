@@ -182,6 +182,9 @@ PYTHONPATH=src:eval python eval/eval_answers.py [--questions eval/questions_ta.j
 - The dialect finding rests on a single question pair.
 - The judge is an LLM from the same model family as the answer model.
 - Results vary slightly between runs, even at temperature 0.
+- Answers are checked for language by script share; a mostly-Tamil answer with an
+  English fragment, or a stray character from another script, can still pass (both seen once
+  before the "not found" sentence was made language-specific).
 
 ## 🧪 Development
 
