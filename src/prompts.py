@@ -2,9 +2,14 @@
 
 from language import detect_language
 
+NOT_FOUND = {
+    "English": "I couldn't find this in the document.",
+    "Tamil": "இந்தத் தகவல் ஆவணத்தில் இல்லை.",
+}
+
 INSTRUCTIONS = """Answer the question using ONLY the context below.
-If the answer is not in the context, say: "I couldn't find this in the document."
-Cite the sources you used, like [1] or [2].
+If the answer is not in the context, reply with exactly: "{not_found}" and add no citations.
+Otherwise, cite the sources you used, like [1] or [2].
 Write your answer in {language}, even if the context is in a different language."""
 
 
@@ -15,7 +20,8 @@ def build_prompt(question, chunks):
         numbered.append(f"[{number}] {chunk.page_content}")
 
     context = "\n\n".join(numbered)
-    instructions = INSTRUCTIONS.format(language=detect_language(question))
+    language = detect_language(question)
+    instructions = INSTRUCTIONS.format(language=language, not_found=NOT_FOUND[language])
 
     return f"""{instructions}
 
